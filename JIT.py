@@ -542,45 +542,23 @@ def JITT( freq, g, rank, filename, quizname ):
     # it's also weighted
     U,S,VT = np.linalg.svd(A_prime.T, full_matrices=False)
 
-    print A_prime.T.shape
-    print U.shape
-    print S.shape
-    print VT.shape
     # fix rank first
     (x,_) = A_doc_matrix.shape
     if rank > x:
         rank = x
 
-    #lefleft =np.dot(U, np.eye(x)*S)
-    #test = np.dot(lefleft, VT)
- #   print test
- #   print A_prime.T
-    #print S
-    # only need rank k
     U_k = np.array(U[:,:rank])
     
     S_k = np.array(S[0:rank])
     V_k = np.array(VT[0:rank])
 
-    #print A_prime.T
-    #print S_k
     left = np.dot(U_k, np.eye(rank)*S_k)
-    print '----'
-    #print V_k
-    print 
     
-    print '----'
     # rank_k matrix is representation of the answer log
     # words as rows columns as students
     Rank_k = np.dot( left, V_k )
-    #print Rank_k
-    # recreate rank_k wordle
-    # print out rank_k matrix 
     word_freq_Rank_k = [ round(np.sum(row)) for row in Rank_k ]
-    print np.array(word_freq_Rank_k).shape
     Rank_k_dict = dict(zip(word_array, word_freq_Rank_k))
-    print np.array(word_freq_Rank_k)
-    print V_k.T.shape
     Rank_k_wordle = recreate_wordle_matrix(Rank_k_dict)
     
     print_to_file('Rank_k_wordle.txt', Rank_k_wordle)
