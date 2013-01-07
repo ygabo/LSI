@@ -313,16 +313,30 @@ def read_answer_log( filename, quizname, numbers ):
         f = matrix2[x]
         matrix_joined = matrix_joined + [f]
         y = x+1
-        #while not is_time_stamp( y[0] ):
-        if x ==90:
-            
-            print matrix2[x]
-        print "'{0}', '{1}'".format(is_time_stamp(matrix2[x]), x)
-        x = x+1
-        
-
-    
-    print np.array(matrix_joined)[91]
+        if y > last:
+            break
+        #print x
+        #print matrix_joined[-1]
+        while not has_time_stamp( matrix2[y] ):
+            tol = matrix_joined[-1]
+            lol = matrix2[y]
+            matrix_joined[-1] = tol + lol
+            y = y + 1
+            if y > last:
+                break
+        # end while loop
+        x = y
+        if y > last:
+            break
+    # end while loop            
+    print_to_file('joined_matrix', matrix_joined)
+    print matrix_joined[90]
+    # print "'{0}', '{1}'".format(is_time_stamp(matrix2[x]), x)
+    matrix_joined =  np.array(matrix_joined)
+    lol = matrix_joined[89]+matrix_joined[90]+ matrix_joined[91] + matrix_joined[92]+ matrix_joined[93]
+    #print lol[3]
+    #print matrix_joined[2][2]
+    #print matrix_joined[]
     return
     # only retrieve the test we want
     harvest = [ row for row in matrix2 if get_test_name_from_line( row ) == quizname]
@@ -392,7 +406,7 @@ def get_number_from_line( row ):
 # Stamps look like this :
 # [Tue Dec 18 15:03:25 2012] |bb_demo_17032|Lecture_1|2|010101
 # This just checks if the string has the correct number of elements
-def is_time_stamp( string ):
+def has_time_stamp( string ):
     # check if empty first
     if string == '':
         return False
@@ -641,6 +655,6 @@ if __name__=="__main__":
     
     # freq, g, rank, log, quiz name 
     #JITT( 0, 0, 2, 'answer_log', 'Lecture_1')
-    print if_time_stamp( 'lol' )
+    #print if_time_stamp( 'lol' )
     read_answer_log('answer_log', 'Lecture_1', [1])
    
