@@ -134,6 +134,7 @@ def remove_punc(sentence):
     sentence = re.sub('([,!?()])', r' \1 ', sentence)
     # get rid of punctuations
     exclude = set(string.punctuation)
+
     # don't remove these two symbols
     exclude.remove('-')
     exclude.remove('_')
@@ -142,8 +143,6 @@ def remove_punc(sentence):
     # remove the punctuations
     sentence = ''.join(ch for ch in sentence if ch not in exclude)
     return sentence
-
-    #return filter(lambda x: dictionary[x] > minimum, words)
 
 # helper
 # This function is by Fredrik Lundh
@@ -300,9 +299,31 @@ def read_answer_log( filename, quizname, numbers ):
     answer_log = csv.reader(open(filename, 'rb'), delimiter='\t', quoting=csv.QUOTE_NONE)
     # convert to a list
     y = list(answer_log)
+    #print y
     # then convert to a numpy matrix
     matrix2 = np.array(y)
 
+    matrix_joined = []
+    x = 0
+    #x = 90
+    last, = matrix2.shape
+    last = last - 1
+    
+    while x < last :
+        f = matrix2[x]
+        matrix_joined = matrix_joined + [f]
+        y = x+1
+        #while not is_time_stamp( y[0] ):
+        if x ==90:
+            
+            print matrix2[x]
+        print "'{0}', '{1}'".format(is_time_stamp(matrix2[x]), x)
+        x = x+1
+        
+
+    
+    print np.array(matrix_joined)[91]
+    return
     # only retrieve the test we want
     harvest = [ row for row in matrix2 if get_test_name_from_line( row ) == quizname]
     # only get the numbers we specified 
@@ -314,6 +335,9 @@ def read_answer_log( filename, quizname, numbers ):
     harvest = np.array(harvest)
     return harvest
 
+# helper function
+# this ensures that the last submitted answer
+# from a student is the one we extract
 def remove_duplicate_submits( matrix, quizname, numbers ):
     names = set([])
 
@@ -351,6 +375,11 @@ def get_name_from_line( row ):
     return str.split(str.split(row[0], ']')[1], '|' )[1]
 
 def get_test_name_from_line( row ):
+    print '---'
+    f = np.array(row)
+   # print f[0]
+   # print 'Lecture_1' in f[0]
+   # print str.split(str.split(row[0], ']')[1], '|' )
     return str.split(str.split(row[0], ']')[1], '|' )[2]
 
 def get_time_stamp_from_line( row ):
@@ -359,6 +388,36 @@ def get_time_stamp_from_line( row ):
 def get_number_from_line( row ):
     return int(str.split(str.split(row[0], ']')[1], '|' )[3])
 
+# Check if this string is a time stamp
+# Stamps look like this :
+# [Tue Dec 18 15:03:25 2012] |bb_demo_17032|Lecture_1|2|010101
+# This just checks if the string has the correct number of elements
+def is_time_stamp( string ):
+    # check if empty first
+    if string == '':
+        return False
+    if string == None:
+        return False
+    if string == []:
+        return False
+    
+    # only consider the first element
+    # since that is where the time stamp is
+    local = string[0]
+    local = np.array(local.split())
+    
+    outer, = local.shape
+    if outer != 6: 
+        return False
+    
+    inner, = np.array(local[5].replace('|', ' ').split()).shape
+    if inner != 4:
+        return False
+
+    # outer has 6 elements
+    # inner has 4 elements
+    return True
+    
 #-------------------------
 # WEIGHTS
 #-------------------------
@@ -523,6 +582,8 @@ def JITT( freq, g, rank, filename, quizname ):
     # A_prime has words as columns, students as rows
     A_prime = weight_matrix( A_doc_matrix, freq, g )
 
+   # print A_prime
+    
     words = dict_to_array( dictionary )
     # recreate the original matrix from a frequency matrix
     word_array = words[0:,0]
@@ -531,6 +592,8 @@ def JITT( freq, g, rank, filename, quizname ):
     # create something that wordle understands
     A_prime_wordle = recreate_wordle_matrix(zip_freq_to_words)
     print_to_file('ProcessedMatrix_wordle.txt', A_prime_wordle)
+
+    #print np.array(fixed_matrix)
     
     #---------------------------------------------------
     # Matrix SVD block
@@ -548,12 +611,22 @@ def JITT( freq, g, rank, filename, quizname ):
         rank = x
 
     U_k = np.array(U[:,:rank])
-    
     S_k = np.array(S[0:rank])
     V_k = np.array(VT[0:rank])
-
     left = np.dot(U_k, np.eye(rank)*S_k)
-    
+
+    # ---- 
+    #leftU = np.array(U[:,1])
+    #Sig = S[1]
+    #rightVT = np.array(VT[1])
+    #X_left = leftU*Sig
+    #X_left = np.array(X_left)
+    #R2 = np.outer(X_left, rightVT)
+    #word_freq_Rank_2 = [ round(np.sum(row)) for row in R2 ]
+    #Rank_2_dict = dict(zip(word_array, word_freq_Rank_2))
+    #Rank_2_wordle = recreate_wordle_matrix(Rank_2_dict)
+    # ----
+
     # rank_k matrix is representation of the answer log
     # words as rows columns as students
     Rank_k = np.dot( left, V_k )
@@ -562,10 +635,12 @@ def JITT( freq, g, rank, filename, quizname ):
     Rank_k_wordle = recreate_wordle_matrix(Rank_k_dict)
     
     print_to_file('Rank_k_wordle.txt', Rank_k_wordle)
-
+    print_to_file('Only_2_wordle.txt', Rank_2_wordle)
     
 if __name__=="__main__":
-
-    JITT( 0, 0, 1, 'answer_log', 'Lec_1')
-   
+    
+    # freq, g, rank, log, quiz name 
+    #JITT( 0, 0, 2, 'answer_log', 'Lecture_1')
+    print if_time_stamp( 'lol' )
+    read_answer_log('answer_log', 'Lecture_1', [1])
    
