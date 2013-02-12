@@ -7,20 +7,21 @@ import string
 import unicodedata
 import operator
 import pickle
-#import matplotlib#.cbook
-import matplotlib#.pyplot as pl
+import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 from collections import Counter
 import sets
+import os
+import errno
 
-
-
+from gensim import corpora, models, similarities
+import gensim
+import logging
 
 #-------------------------
 # DATA CLEAN UP
 #-------------------------
-
 
 def clean_up_data( matrix ):
     # clean up the matrix
@@ -45,7 +46,9 @@ def clean_up(matrix_row):
             strip_html(       # Convert html special characters into equivalent form, instead of acii (might be redundant with remove_func on top)
             merge_rows(       # Merge rows just in case they're separated by the csv reader( for now, one row is one feedback of one student)  
               matrix_row )))) # The actual row
-            .lower()))))       # Convert everything into lower case  
+            .lower()))))       # Convert everything into lower case
+
+    #print fresh
     return fresh
 
 # helper
@@ -86,7 +89,8 @@ def plurals( words ):
     return new_words
 
 def remove_words( words ):
-    extra = ['explain', 'equation']
+    extra = ['explain', 'equation', 'screencast', 'difficult', 'video', 'understand',
+             'understanding', 'doe', 'bit']
     dolch220 = ['a', 'all', 'after', 'always', 'about', 'and', 'am', 'again',
                 'around', 'better', 'away', 'are', 'an', 'because', 'bring',
                 'bat', 'any', 'been', 'carry', 'blue', 'ate', 'as', 'before',
@@ -109,7 +113,7 @@ def remove_words( words ):
                 'soon', 'them', 'us', 'start', 'we', 'that', 'then', 'use',
                 'where', 'there', 'think', 'very', 'today', 'they', 'walk',
                 'wash', 'together', 'you', 'this', 'were', 'which', 'try',
-                'too', 'when', 'why', 'under', 'wish', 'want', 'work', 'was',
+                'too', 'when', 'why', 'under', 'wa', 'wish', 'want', 'work', 'was',
                 'would', 'well', 'write', 'went', 'your', 'what', 'white',
                 'hill', 'who', 'will', 'with', 'yes']    
     words_to_remove = stopwords.words('english') + dolch220 + extra
@@ -139,7 +143,7 @@ def remove_punc(sentence):
     exclude.remove('-')
     exclude.remove('_')
     exclude.remove('.')
-    #print sentence
+
     # remove the punctuations
     sentence = ''.join(ch for ch in sentence if ch not in exclude)
     return sentence
@@ -248,6 +252,8 @@ def word_matrix( student_comment_matrix, dictionary ):
     z = []
     for student_comment in student_comment_matrix:
         a = count_student_words( student_comment, dictionary )
+        # converts the dictionary count into an array, 
+        # sorts the words as well
         a = dict_to_array(a)
         a = map(int, a[:,1])
         z = z+[a]
@@ -259,11 +265,21 @@ def word_matrix( student_comment_matrix, dictionary ):
 # FILE IO
 #-------------------------
 
-def print_to_file( name, matrix ):    
-    f1=open(name, 'w+')
+def print_to_file( name, matrix ):
+    directory = 'Results'
+    make_sure_path_exists(directory)
+    new_path = directory + '/' + name
+    f1=open(new_path, 'w+')
     for row in matrix:
         print >>f1, row
     f1.close()
+
+def make_sure_path_exists(path):
+    try:
+        os.makedirs(path)
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            raise
     
 def save_matrix_to_file( name, matrix ):
     save_file( name, matrix )
@@ -299,24 +315,22 @@ def read_answer_log( filename, quizname, numbers ):
     answer_log = csv.reader(open(filename, 'rb'), delimiter='\t', quoting=csv.QUOTE_NONE)
     # convert to a list
     y = list(answer_log)
-    #print y
     # then convert to a numpy matrix
     matrix2 = np.array(y)
 
     matrix_joined = []
     x = 0
-    #x = 90
     last, = matrix2.shape
     last = last - 1
     
     while x < last :
         f = matrix2[x]
         matrix_joined = matrix_joined + [f]
+
         y = x+1
         if y > last:
             break
-        #print x
-        #print matrix_joined[-1]
+
         while not has_time_stamp( matrix2[y] ):
             tol = matrix_joined[-1]
             lol = matrix2[y]
@@ -325,28 +339,30 @@ def read_answer_log( filename, quizname, numbers ):
             if y > last:
                 break
         # end while loop
+
         x = y
         if y > last:
             break
-    # end while loop            
-    print_to_file('joined_matrix', matrix_joined)
-    print matrix_joined[90]
-    # print "'{0}', '{1}'".format(is_time_stamp(matrix2[x]), x)
-    matrix_joined =  np.array(matrix_joined)
-    lol = matrix_joined[89]+matrix_joined[90]+ matrix_joined[91] + matrix_joined[92]+ matrix_joined[93]
-    #print lol[3]
-    #print matrix_joined[2][2]
-    #print matrix_joined[]
-    return
+    # end while loop
+
     # only retrieve the test we want
-    harvest = [ row for row in matrix2 if get_test_name_from_line( row ) == quizname]
+    harvest = [ row for row in matrix_joined if get_test_name_from_line( row ) == quizname]
     # only get the numbers we specified 
-    harvest = [ row for row in harvest if get_number_from_line( row ) in numbers ]
-    harvest = np.array(harvest)
-    # only latest submit of a student is considered
+    harvest = [ row for row in harvest if get_number_from_line( row ) in [1] ]
+    harvest = np.array( harvest)
     harvest = remove_duplicate_submits( harvest, quizname, numbers)
-    harvest = [ get_essay_from_line(row) for row in harvest ]
-    harvest = np.array(harvest)
+
+    name_list  = np.array([ get_name_from_line(row) for row in harvest ])
+    essay_list = np.array([ get_essay_from_line(row) for row in harvest ])
+
+    dual_list = ( zip( name_list, essay_list ) )
+
+    print_to_file( 'essay_with_names.csv', dual_list)
+    print_to_file( 'essay.csv', essay_list)
+
+    harvest = np.array( [ row for row in essay_list if row != '' ] )
+    print_to_file( 'noblanks.csv', harvest)
+
     return harvest
 
 # helper function
@@ -362,38 +378,54 @@ def remove_duplicate_submits( matrix, quizname, numbers ):
         name = get_name_from_line(row)
         names.add(name)
     latest_stamp = 0
-
+    
     # for each name in the set
     # get the latest time stamp
     # then filter out the earlier ones
     while True and len(names) > 0:
         curname = names.pop()
         submatrix = np.array([ row for row in matrix if get_name_from_line(row) == curname])
+        # get latest time stamp
         for row in submatrix:
             stamp = get_time_stamp_from_line(row)
             if latest_stamp < stamp:
                 latest_stamp = stamp
-        
+
+        # remove duplicates
         matrix = [ row for row in matrix if (curname != get_name_from_line(row)) or (get_time_stamp_from_line(row) == latest_stamp) ]       
         latest_stamp = 0
         if len(names) == 0:
             break
-    
+    # abi, TODO
+    # simple fix for now
+    # remove the guy with this ID
+    matrix =  [ row for row in matrix if get_name_from_line(row) != 'ITP1MGS34Q06' ]
     matrix = np.array(matrix)
     return matrix
 
 def get_essay_from_line( row ):
-    return str.split(row[2], ']')
+    # first index of
+    # essay answer is 2
+    index = 2
+    last, = np.array(row).shape
+    last  = last - 1 
+
+    answer = str.split(row[index], '[')
+    
+    index  = index + 1
+    while index <= last:
+        if len(str.split(row[index], ' ')) < 2:
+            break
+        answer = answer + [row[index]]
+        index  = index + 1     
+    answer = ' '.join(answer)
+    return answer
 
 def get_name_from_line( row ):
     return str.split(str.split(row[0], ']')[1], '|' )[1]
 
 def get_test_name_from_line( row ):
-    print '---'
     f = np.array(row)
-   # print f[0]
-   # print 'Lecture_1' in f[0]
-   # print str.split(str.split(row[0], ']')[1], '|' )
     return str.split(str.split(row[0], ']')[1], '|' )[2]
 
 def get_time_stamp_from_line( row ):
@@ -470,7 +502,7 @@ def global_normal_weighting( matrix ):
     # for each word, square the values then sum them
     # return the inverse of that 
     (x,_) = matrix.shape
-    print matrix.shape
+    #print matrix.shape
     g = np.zeros(x)
 
     for i in range(x):
@@ -573,7 +605,7 @@ def JITT( freq, g, rank, filename, quizname ):
 
     # handle the pre-processing
     fixed_matrix = clean_up_data(answermatrix)
-   
+#    print np.array(fixed_matrix)
     # print to file
     print_to_file('BigDoc.txt', fixed_matrix)
     # construct the initial dictionary
@@ -585,9 +617,10 @@ def JITT( freq, g, rank, filename, quizname ):
 
     # get the columns needed for the doc matrix    
     columns = set_dict_values_to_zero(dictionary)
+    
     # construct doc matrix
     A_doc_matrix = word_matrix(fixed_matrix, columns)
-    
+
     #---------------------------------------------------
     # Matrix Preprocessing block
     #---------------------------------------------------
@@ -595,32 +628,47 @@ def JITT( freq, g, rank, filename, quizname ):
     # preprocess the doc matrix
     # A_prime has words as columns, students as rows
     A_prime = weight_matrix( A_doc_matrix, freq, g )
-
-   # print A_prime
+    print_to_file('A_prime.txt', A_prime)
     
     words = dict_to_array( dictionary )
     # recreate the original matrix from a frequency matrix
     word_array = words[0:,0]
+    
+    print_to_file('word_array.txt', word_array)
+    
     word_freq_A_prime = [ round(np.sum(row)) for row in A_prime.T ]
     zip_freq_to_words = dict(zip(word_array, word_freq_A_prime))
+
     # create something that wordle understands
     A_prime_wordle = recreate_wordle_matrix(zip_freq_to_words)
     print_to_file('ProcessedMatrix_wordle.txt', A_prime_wordle)
 
-    #print np.array(fixed_matrix)
-    
     #---------------------------------------------------
     # Matrix SVD block
     #---------------------------------------------------
 
+    # only get the words that occur > 1
+    dict_threshold = set_minimum( zip_freq_to_words, 1 )
+    # get the words that do occur > 1, set their occurence to 0
+    columns_thresh = set_dict_values_to_zero(dict_threshold)
+    # new word matrix
+    A_prime_thresh = word_matrix(fixed_matrix, columns_thresh)
+
+    # word array for words that occur > 1
+    words_thresh = dict_to_array( dict_threshold )
+    # recreate the original matrix from a frequency matrix
+    word_array_thresh = words_thresh[0:,0]
+    
     # get SVD of the A_prime transpose matrix
     # transpose because, we want the words to be the
     # rows and students as columns
     # it's also weighted
-    U,S,VT = np.linalg.svd(A_prime.T, full_matrices=False)
+    U,S,VT = np.linalg.svd(A_prime_thresh.T, full_matrices=False)
+
+    # U should have #-of-words rows
 
     # fix rank first
-    (x,_) = A_doc_matrix.shape
+    (x,_) = A_prime_thresh.shape
     if rank > x:
         rank = x
 
@@ -628,33 +676,157 @@ def JITT( freq, g, rank, filename, quizname ):
     S_k = np.array(S[0:rank])
     V_k = np.array(VT[0:rank])
     left = np.dot(U_k, np.eye(rank)*S_k)
+    
+   # print S_k
+   # print V_k
 
-    # ---- 
-    #leftU = np.array(U[:,1])
-    #Sig = S[1]
-    #rightVT = np.array(VT[1])
-    #X_left = leftU*Sig
-    #X_left = np.array(X_left)
-    #R2 = np.outer(X_left, rightVT)
-    #word_freq_Rank_2 = [ round(np.sum(row)) for row in R2 ]
-    #Rank_2_dict = dict(zip(word_array, word_freq_Rank_2))
-    #Rank_2_wordle = recreate_wordle_matrix(Rank_2_dict)
-    # ----
+    #----------------------------------------------
+    #----------------------------------------------
+    Puff = np.array([[ 0,  0,  1,  1,  0,  0,  0,  0,  0,],
+    [ 0,  0,  0,  0,  0,  1,  0,  0,  1,],
+    [ 0,  1,  0,  0,  0,  0,  0,  1,  0,],
+    [ 0,  0,  0,  0,  0,  0,  1,  0,  1,],
+    [ 1,  0,  0,  0,  0,  1,  0,  0,  0,],
+    [ 1,  1,  1,  1,  1,  1,  1,  1,  1,],
+    [ 1,  0,  1,  0,  0,  0,  0,  0,  0,],
+    [ 0,  0,  0,  0,  0,  0,  1,  0,  1,],
+    [ 0,  0,  0,  0,  0,  2,  0,  0,  1,],
+    [ 1,  0,  1,  0,  0,  0,  0,  1,  0,],
+    [ 0,  0,  0,  1,  1,  0,  0,  0,  0,]])
+    
+    Us,Ss,VTs = np.linalg.svd(Puff, full_matrices=False)
 
-    # rank_k matrix is representation of the answer log
-    # words as rows columns as students
+    # fix rank first
+    (x,_) = A_prime_thresh.shape
+    if rank > x:
+        rank = x
+
+    U_s = np.array(Us[:,:3])
+    S_s = np.array(Ss[0:3])
+    V_s = np.array(VTs[0:3])
+    lol = np.dot(Us, np.eye(9)*Ss)
+    lool= np.dot(lol,VTs)
+    
+    #print np.dot(np.dot(Us, Ss),VTs)
+    #print U_s
+    #print Ss
+    #print VTs
+    #print lool[0]
+    #print Puff[0]
+    
     Rank_k = np.dot( left, V_k )
     word_freq_Rank_k = [ round(np.sum(row)) for row in Rank_k ]
-    Rank_k_dict = dict(zip(word_array, word_freq_Rank_k))
+    Rank_k_dict = dict(zip(word_array_thresh, word_freq_Rank_k))
     Rank_k_wordle = recreate_wordle_matrix(Rank_k_dict)
+
+    filename = 'Rank_' + str(rank) + '_wordle.txt'
     
-    print_to_file('Rank_k_wordle.txt', Rank_k_wordle)
-    print_to_file('Only_2_wordle.txt', Rank_2_wordle)
+    print_to_file(filename, Rank_k_wordle)
+
+    top30 = np.array(sort_by_value(Rank_k_dict))[0:31]
+
+    top30words = top30[:,0]
+    wordset = set(top30words)
+
+    
+    #----------------------------------------------
+    # this is without threshold ( all words, even ones that occured once )
+    #----------------------------------------------
+
+    print A_prime.shape
+    Ul,Sl,VTl = np.linalg.svd(A_prime.T, full_matrices=False)
+
+    # fix rank first
+    (x,_) = A_prime_thresh.shape
+    if rank > x:
+        rank = x
+
+    #print Sl
+
+    ###--------------------------------------------
+
+    # PLOTTING
+    #-------------------------------
+    
+    U_plot = np.array(U[:,1:3])*1000
+    V_plot = np.array(VT[1:3])
+    
+    fig = plt.figure(figsize=(12, 9))
+    ax = fig.add_subplot(111)
+    x_axis = np.array(word_array_thresh)
+    p, = ax.plot(U_plot.T[0], U_plot.T[1], '.')
+    row_anno = 0
+
+    U_anno = U_plot
+    for word in word_array_thresh:
+        ax.annotate(word, (U_anno[row_anno][0],U_anno[row_anno][1]), size='xx-small')
+        row_anno += 1
+
+    temp = 0
+
+    lol =  np.array(zip(range(125),np.array(word_array_thresh)))
+    print_to_file('label.txt', lol)
+   # plt.xticks(range(-100,100,1))#, x_axis, size='small', rotation=90)
+    #ax.set_xlim(-50,50)
+    #ax.set_ylim(-75,75) 
+    #plt.show()
+    plt.close()
+    
+    # GENSIM HERE ------------------
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)    
+
+    texts = fixed_matrix
+    
+    dictionary = corpora.Dictionary(texts)
+    mm = [dictionary.doc2bow(text) for text in texts]
+   # for text in texts:
+    #    print text
+    # save
+    #corpora.MmCorpus.serialize('Results/deerwester.mm', mm)
+    
+    # LSI
+    lsi = gensim.models.lsimodel.LsiModel(corpus=mm, id2word=dictionary, num_topics=400)
+    #lsi.print_topics(10)
+
+    #print np.array(zip(lsi.projection.u[1],  Ul[1]))
+   # print l
+    print Ul.shape
+    print lsi.projection.u.shape   
+    #print np.sort(lsi.projection.u.T[0])
+    #print lsi[mm]
+    #print Sl.shape
+
+    print lsi.projection.u.T[0,:]
+
+    loy = np.array([[1,2],[3,4]])
+    print loy.T[0,:]
+    
+    print lsi.projection.u.T
+    #lol  = np.array(mm)
+    #print lol.shape
+    #print lol[0]
+    #print np.array(mm).shape
+    #print np.array(fixed_matrix).shape
+    #print mm
+    #print mm[1]
+    #print mm[5]
+    #print A_prime.T[0]
+    #print fixed_matrix[5]
+    #print dictionary.keys()
+
+    
+    # LDA
+    #lda = gensim.models.ldamodel.LdaModel(corpus=mm, id2word=dictionary, num_topics=100, update_every=1, chunksize=10000, passes=5)
+    #lda.print_topics(10)
+
+    # END #-----------------------------------------------------------
+
     
 if __name__=="__main__":
-    
+    lmtzr = WordNetLemmatizer()
+    #print lmtzr.lemmatize('was')
     # freq, g, rank, log, quiz name 
-    #JITT( 0, 0, 2, 'answer_log', 'Lecture_1')
+    JITT( 0, 0, 3, 'answer_log', 'Lecture_6')
     #print if_time_stamp( 'lol' )
-    read_answer_log('answer_log', 'Lecture_1', [1])
+    #read_answer_log('answer_log', 'Lecture_1', [1])
    
