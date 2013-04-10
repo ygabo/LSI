@@ -14,14 +14,11 @@ from collections import Counter
 import sets
 import os
 import errno
-
 from gensim import corpora, models, similarities
 import gensim
 import logging
-
 from sys import argv
-
-# todo, clean up coupling
+# TODO, clean up coupling
 from lsi_weights import *
 from lsi_datacleanup import *
 from lsi_fileIO import *
@@ -37,10 +34,11 @@ def JITT( freq, g, rank, filename, quizname ):
     #---------------------------------------------------
     # BIG DOC block
     #---------------------------------------------------
-
+    print answermatrix[4]
     # handle the pre-processing
     fixed_matrix = clean_up_data(answermatrix)
-#    print np.array(fixed_matrix)
+    print '----------------------------------------'
+    print np.array(fixed_matrix)[4]
     # print to file
     print_to_file('BigDoc.txt', fixed_matrix)
     # construct the initial dictionary
@@ -206,7 +204,7 @@ def JITT( freq, g, rank, filename, quizname ):
 
 def main(argv):
   log = argv[1] # name of answer log
-  quiz = argv[2] # quiz name  
+  quiz = argv[2] # quiz name, eg 'Lecture_7'
   rank = argv[3] # rank of SVD matrix
   #Lecture_7
   JITT( 0, 0, rank, log, quiz)
