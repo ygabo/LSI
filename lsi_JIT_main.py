@@ -201,61 +201,13 @@ def JITT( freq, g, rank, filename, quizname ):
 
     lol =  np.array(zip(range(125),np.array(word_array_thresh)))
     print_to_file('label.txt', lol)
-   # plt.xticks(range(-100,100,1))#, x_axis, size='small', rotation=90)
-    #ax.set_xlim(-50,50)
-    #ax.set_ylim(-75,75) 
-    #plt.show()
-    plt.close()
-    
-    # GENSIM HERE ------------------
-    #logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)    
-
-    #texts = fixed_matrix
-    
-   # dictionary = corpora.Dictionary(texts)
-   # mm = [dictionary.doc2bow(text) for text in texts]
-   # for text in texts:
-    #    print text
-    # save
-    #corpora.MmCorpus.serialize('Results/deerwester.mm', mm)
-    
-    # LSI
-    #lsi = gensim.models.lsimodel.LsiModel(corpus=mm, id2word=dictionary, num_topics=400)
-    #lsi.print_topics(10)
-
-    #print Ul.shape
-    #print lsi.projection.u.shape   
-
-    #print lsi.projection.u.T[0,:]
-
-    loy = np.array([[1,2],[3,4]])
-   # print loy.T[0,:]
-    
-   # print lsi.projection.u.T
-    #lol  = np.array(mm)
-    #print lol.shape
-    #print lol[0]
-    #print np.array(mm).shape
-    #print np.array(fixed_matrix).shape
-    #print mm
-    #print mm[1]
-    #print mm[5]
-    #print A_prime.T[0]
-    #print fixed_matrix[5]
-    #print dictionary.keys()
-
-    
-    # LDA
-    #lda = gensim.models.ldamodel.LdaModel(corpus=mm, id2word=dictionary, num_topics=100, update_every=1, chunksize=10000, passes=5)
-    #lda.print_topics(10)
-
+  
     # END #-----------------------------------------------------------
 
 def main(argv):
-  log = argv[1]
-  quiz = argv[2]
-  rank = argv[3]
-  #lmtzr = WordNetLemmatizer()
+  log = argv[1] # name of answer log
+  quiz = argv[2] # quiz name  
+  rank = argv[3] # rank of SVD matrix
   #Lecture_7
   JITT( 0, 0, rank, log, quiz)
   
