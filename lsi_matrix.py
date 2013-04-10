@@ -1,23 +1,17 @@
 from __future__ import division
-import numpy as np
-import random
-import csv
-import re
-import string
-import unicodedata
-import operator
-import pickle
-import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
 from collections import Counter
+from lsi_datacleanup import *
+from lsi_fileIO import *
+import numpy as np
+import string
+import operator
+import csv
+import re
 import sets
 import os
 import errno
-
-from lsi_datacleanup import *
-from lsi_fileIO import *
-
 
 # helper function
 # this ensures that the last submitted answer
