@@ -116,7 +116,7 @@ def save_file( filename, data ):
 def load_file( filename ):
   """
   Base function everyone calls to load data from a file.
-  Uses pickle to dump different kinds of objects to a given file
+  Uses pickle to read different kinds of objects from a given file
   
   Args:
     filename (str): name of file where the data object is to be read

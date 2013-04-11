@@ -283,7 +283,8 @@ def sort_by_value(unsorted):
 # only accepts a 2D student comment matrix
 def word_matrix( student_comment_matrix, dictionary ):
   """
-  This method turns the word matrix into a frequency matrix.
+  This method turns a word matrix into a frequency matrix.
+  A matrix of words into numbers that represent frequency.
   
   Args:
     student_comment_matrix (numpy 2D array): student essay matrix
