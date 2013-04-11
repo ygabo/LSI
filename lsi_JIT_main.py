@@ -25,16 +25,16 @@ import logging
 # TODO, clean up coupling
 
 def JITT( freq, g, rank, filename, quizname ):
-"""
-  Main function that gets called.
+    """
+    Main function that gets called.
    
-  Args:
-    freq (str): name of file where the data object is saved
-    g (str): name of file where the data object is saved
-    rank (str): name of file where the data object is saved
-    filename (str): name of file where the data object is saved
-    quizname (object): name of object we should save to a file
-  """
+    Args:
+      freq (str): name of file where the data object is saved
+      g (str): name of file where the data object is saved
+      rank (str): name of file where the data object is saved
+      filename (str): name of file where the data object is saved
+      quizname (object): name of object we should save to a file
+    """
 
     # read the answer log given by the file name
     # choose the proper quiz name specified 
@@ -120,13 +120,14 @@ def JITT( freq, g, rank, filename, quizname ):
 
     # fix rank first
     (x,_) = A_prime_thresh.shape
+    rank = int(rank)
     if rank > x:
-        rank = x
-
-    U_k = np.array(U[:,:rank])
+      rank = 1;
+        
+    U_k = np.array(U[:,:rank]) 
     S_k = np.array(S[0:rank])
     V_k = np.array(VT[0:rank])
-    left = np.dot(U_k, np.eye(rank)*S_k)
+    left = U_k*S_k    
      
     # compute rank k SVD
     Rank_k = np.dot( left, V_k )
@@ -161,7 +162,7 @@ def JITT( freq, g, rank, filename, quizname ):
     # PLOTTING
     #--------------------------------------------
     
-    # TODO, plotting 
+    # TODO, finish plotting 
     U_plot = np.array(U[:,1:3])*1000
     V_plot = np.array(VT[1:3])
     
@@ -220,7 +221,7 @@ def JITT( freq, g, rank, filename, quizname ):
 
 def main(argv):
   """
-  Main function that calls JITT.
+  Main function that calls JITT().
   """
   
   log = argv[1] # name of answer log

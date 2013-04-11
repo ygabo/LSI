@@ -42,7 +42,7 @@ def local_aug_weighting( matrix ):
 
 # matrix must be a numpy 2D array
 def local_binary_weighting( matrix ):
- """
+  """
   This method takes in a numpy 2D array
   and applies binary weighting to the frequency.
   Word frequency is either 1 or 0.
@@ -190,7 +190,7 @@ def best_weighting( matrix ):
   """
   g = global_entropy_weighting( matrix )
   A = matrix
- (rows,_) = A.shape
+  (rows,_) = A.shape
   
   for i in range(rows):
     A[i] = g[i] * np.log2(A[i]+1)

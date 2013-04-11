@@ -35,14 +35,14 @@ def clean_up_data( matrix ):
   return clean
 
 def clean_up_data_no_prune( matrix ):
-  """
-  Same as clean_up_data(), but this method doesn't cut off stop words.
-  
-  Args:
-    matrix (2D list): name of matrix to be cleaned up
-  Returns:
-    clean matrix
-  """
+    """
+    Same as clean_up_data(), but this method doesn't cut off stop words.
+    
+    Args:
+      matrix (2D list): name of matrix to be cleaned up
+    Returns:
+      clean matrix
+    """
     matrix = matrix[1:]
     # clean up the matrix
     clean = [ clean_up_no_prune( row[:] ) for row in matrix ]
@@ -246,15 +246,15 @@ def remove_punc(sentence):
 
 # helper
 def strip_html(text):
-  """  
-  This function is by Fredrik Lundh
-  Convert html special characters into normal ascii characters.
-  
-  Args:
-    text (str): sentence string.
-  Returns:
-    string sentence without punctuation
-  """
+    """  
+    This function is by Fredrik Lundh
+    Convert html special characters into normal ascii characters.
+    
+    Args:
+      text (str): sentence string.
+    Returns:
+      string sentence without punctuation
+    """
     
     def fixup(m):
         text = m.group(0)
