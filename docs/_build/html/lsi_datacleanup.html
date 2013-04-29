@@ -1,0 +1,273 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Data Clean Up Module &mdash; Just In Time Teaching 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Just In Time Teaching 1.0.0 documentation" href="index.html" />
+    <link rel="next" title="File IO Module" href="lsi_fileIO.html" />
+    <link rel="prev" title="Matrix Manipulation Module" href="lsi_matrix.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lsi_fileIO.html" title="File IO Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lsi_matrix.html" title="Matrix Manipulation Module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-lsi_datacleanup">
+<span id="data-clean-up-module"></span><h1>Data Clean Up Module<a class="headerlink" href="#module-lsi_datacleanup" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="lsi_datacleanup.clean_up">
+<tt class="descclassname">lsi_datacleanup.</tt><tt class="descname">clean_up</tt><big>(</big><em>matrix_row</em><big>)</big><a class="reference internal" href="_modules/lsi_datacleanup.html#clean_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_datacleanup.clean_up" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called by clean_up_data().
+Runs through an input string essay and cleans it up.
+Calls multiple functions to remove stop words, convert plurals, 
+remove symbols, separate the words, etc.</p>
+<dl class="docutils">
+<dt>E.g. </dt>
+<dd>&#8216;The concepts were generally easy to follow.&#8217; -&gt;[&#8216;concept&#8217;, &#8216;generally&#8217;, &#8216;easy&#8217;, &#8216;follow&#8217;]</dd>
+<dt>Args:</dt>
+<dd>matrix_row (str): string to be cleaned up</dd>
+<dt>Returns:</dt>
+<dd>list of relevant and interesting words from the string</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_datacleanup.clean_up_data">
+<tt class="descclassname">lsi_datacleanup.</tt><tt class="descname">clean_up_data</tt><big>(</big><em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_datacleanup.html#clean_up_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_datacleanup.clean_up_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main method called to clean up data/matrix input.
+Each row represents one student essay, and each row 
+is cleaned using the clean_up() method.</p>
+<p>E.g. 
+[&#8216;It was moderately difficult.&#8217; &#8216;The concepts were generally easy to follow.&#8217;] -&gt;
+[[&#8216;moderately&#8217;, &#8216;difficult&#8217;][&#8216;concept&#8217;, &#8216;generally&#8217;, &#8216;easy&#8217;, &#8216;follow&#8217;]]</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (2D list): name of matrix to be cleaned up</dd>
+<dt>Returns:</dt>
+<dd>clean matrix</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_datacleanup.clean_up_data_no_prune">
+<tt class="descclassname">lsi_datacleanup.</tt><tt class="descname">clean_up_data_no_prune</tt><big>(</big><em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_datacleanup.html#clean_up_data_no_prune"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_datacleanup.clean_up_data_no_prune" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as clean_up_data(), but this method doesn&#8217;t cut off stop words.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (2D list): name of matrix to be cleaned up</dd>
+<dt>Returns:</dt>
+<dd>clean matrix</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_datacleanup.clean_up_no_prune">
+<tt class="descclassname">lsi_datacleanup.</tt><tt class="descname">clean_up_no_prune</tt><big>(</big><em>matrix_row</em><big>)</big><a class="reference internal" href="_modules/lsi_datacleanup.html#clean_up_no_prune"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_datacleanup.clean_up_no_prune" title="Permalink to this definition">¶</a></dt>
+<dd><p>Same as clean_up() but this doesn&#8217;t call remove_words().</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix_row (str): string to be cleaned up</dd>
+<dt>Returns:</dt>
+<dd>list of relevant and interesting words from the string</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_datacleanup.conv_uni">
+<tt class="descclassname">lsi_datacleanup.</tt><tt class="descname">conv_uni</tt><big>(</big><em>unicode_row</em><big>)</big><a class="reference internal" href="_modules/lsi_datacleanup.html#conv_uni"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_datacleanup.conv_uni" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method converts unicode data into ascii.
+We don&#8217;t want unicode symbols.
+Unicode to ascii table found here <a class="reference external" href="http://www.utf8-chartable.de/">http://www.utf8-chartable.de/</a></p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>unicode_row (str): string to be cleaned up</dd>
+<dt>Returns:</dt>
+<dd>string now in ascii</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_datacleanup.merge_rows">
+<tt class="descclassname">lsi_datacleanup.</tt><tt class="descname">merge_rows</tt><big>(</big><em>matrix_row</em><big>)</big><a class="reference internal" href="_modules/lsi_datacleanup.html#merge_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_datacleanup.merge_rows" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method combines a list of words into one string.</p>
+<p>E.g. [ &#8216;hello&#8217;, &#8216;hi&#8217; ] -&gt; [ &#8216;hello hi&#8217; ]</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix_row (str): list of words to be combined</dd>
+<dt>Returns:</dt>
+<dd>combined words in one string</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_datacleanup.plurals">
+<tt class="descclassname">lsi_datacleanup.</tt><tt class="descname">plurals</tt><big>(</big><em>words</em><big>)</big><a class="reference internal" href="_modules/lsi_datacleanup.html#plurals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_datacleanup.plurals" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is converts plural words into singular.
+It works by calling a third party library by nltk.</p>
+<p>E.g.
+&#8216;grapes&#8217; -&gt; &#8216;grape&#8217; 
+&#8216;mountain&#8217; -&gt; &#8216;mountain&#8217; # already singular</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>words (str): list of words to be converted</dd>
+<dt>Returns:</dt>
+<dd>list of words in singular form</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_datacleanup.remove_dot">
+<tt class="descclassname">lsi_datacleanup.</tt><tt class="descname">remove_dot</tt><big>(</big><em>words</em><big>)</big><a class="reference internal" href="_modules/lsi_datacleanup.html#remove_dot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_datacleanup.remove_dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes dots after a word.</p>
+<p>E.g.
+&#8216;This.&#8217; -&gt; &#8216;This&#8217;</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>words (str): list of words to be filtered</dd>
+<dt>Returns:</dt>
+<dd>list of words after removing &#8216;.&#8217; suffix</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_datacleanup.remove_punc">
+<tt class="descclassname">lsi_datacleanup.</tt><tt class="descname">remove_punc</tt><big>(</big><em>sentence</em><big>)</big><a class="reference internal" href="_modules/lsi_datacleanup.html#remove_punc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_datacleanup.remove_punc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes all the punctuations from a sentence.</p>
+<dl class="docutils">
+<dt>Note:</dt>
+<dd>pad punctuations with space
+just in case so 2 words wont stick together
+e.g. avoid this: &#8220;by this!Also&#8221; &#8211;&gt; &#8220;by thisAlso&#8221;</dd>
+<dt>Args:</dt>
+<dd>sentence (str): sentence string.</dd>
+<dt>Returns:</dt>
+<dd>string sentence without punctuation</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_datacleanup.remove_words">
+<tt class="descclassname">lsi_datacleanup.</tt><tt class="descname">remove_words</tt><big>(</big><em>words</em><big>)</big><a class="reference internal" href="_modules/lsi_datacleanup.html#remove_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_datacleanup.remove_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method filters out specific words from an input of words.</p>
+<p>TODO: not hardcode the stop words in this method</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>words (str): list of words to be cleaned</dd>
+<dt>Returns:</dt>
+<dd>list of words that were not filtered</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_datacleanup.strip_html">
+<tt class="descclassname">lsi_datacleanup.</tt><tt class="descname">strip_html</tt><big>(</big><em>text</em><big>)</big><a class="reference internal" href="_modules/lsi_datacleanup.html#strip_html"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_datacleanup.strip_html" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is by Fredrik Lundh
+Convert html special characters into normal ascii characters.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>text (str): sentence string.</dd>
+<dt>Returns:</dt>
+<dd>string sentence without punctuation</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lsi_matrix.html"
+                        title="previous chapter">Matrix Manipulation Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lsi_fileIO.html"
+                        title="next chapter">File IO Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lsi_datacleanup.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lsi_fileIO.html" title="File IO Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lsi_matrix.html" title="Matrix Manipulation Module"
+             >previous</a> |</li>
+        <li><a href="index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Yelnil Gabo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

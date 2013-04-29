@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lsi_weights &mdash; Just In Time Teaching 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Just In Time Teaching 1.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lsi_weights</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<div class="viewcode-block" id="local_log_weighting"><a class="viewcode-back" href="../lsi_weights.html#lsi_weights.local_log_weighting">[docs]</a><span class="k">def</span> <span class="nf">local_log_weighting</span><span class="p">(</span> <span class="n">matrix</span> <span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method takes in a numpy 2D array</span>
+<span class="sd">  and applies log weighting to the frequency.</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix (numpy 2D array): will be the name of the file. eg &#39;BigDoc.txt&#39; </span>
+<span class="sd">  Returns:</span>
+<span class="sd">    matrix with elements log weighted</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span>
+  <span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+    <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">A</span>
+
+<span class="c"># matrix must be a numpy 2D array</span></div>
+<div class="viewcode-block" id="local_aug_weighting"><a class="viewcode-back" href="../lsi_weights.html#lsi_weights.local_aug_weighting">[docs]</a><span class="k">def</span> <span class="nf">local_aug_weighting</span><span class="p">(</span> <span class="n">matrix</span> <span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method takes in a numpy 2D array</span>
+<span class="sd">  and applies log weighting to the frequency.</span>
+<span class="sd">  Each row represents a word.</span>
+<span class="sd">  Each column represents a student.</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix (numpy 2D array): a numpy 2D array of word frequencies </span>
+<span class="sd">  Returns:</span>
+<span class="sd">    matrix with elements that are log weighted</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span>
+  <span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
+  <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="c"># this is array wise math</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">m</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+  <span class="k">return</span> <span class="n">A</span>
+
+<span class="c"># matrix must be a numpy 2D array</span></div>
+<div class="viewcode-block" id="local_binary_weighting"><a class="viewcode-back" href="../lsi_weights.html#lsi_weights.local_binary_weighting">[docs]</a><span class="k">def</span> <span class="nf">local_binary_weighting</span><span class="p">(</span> <span class="n">matrix</span> <span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method takes in a numpy 2D array</span>
+<span class="sd">  and applies binary weighting to the frequency.</span>
+<span class="sd">  Word frequency is either 1 or 0.</span>
+<span class="sd">  Each row represents a word.</span>
+<span class="sd">  Each column represents a student.</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix (numpy 2D array): a numpy 2D array of word frequencies</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    matrix with elements that are binary weighted</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span>
+  <span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="n">columns</span><span class="p">)</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
+  <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+  
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>                
+  
+  <span class="k">return</span> <span class="n">A</span>
+</div>
+<div class="viewcode-block" id="global_normal_weighting"><a class="viewcode-back" href="../lsi_weights.html#lsi_weights.global_normal_weighting">[docs]</a><span class="k">def</span> <span class="nf">global_normal_weighting</span><span class="p">(</span> <span class="n">matrix</span> <span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method takes in a numpy 2D array</span>
+<span class="sd">  and calculates the normal weight for each row and</span>
+<span class="sd">  returns the weights, g.</span>
+<span class="sd">  </span>
+<span class="sd">  Each row represents a word.</span>
+<span class="sd">  Each column represents a student/document.</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix (numpy 2D array): a numpy 2D array of word frequencies</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    g (numpy array): an array that represents the weight for each row</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="c"># for each word, square the values then sum them</span>
+  <span class="c"># return the inverse of that</span>
+  <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span>
+  <span class="c">#print matrix.shape</span>
+  <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+
+  <span class="k">return</span> <span class="n">g</span>
+</div>
+<div class="viewcode-block" id="global_gfldf_weighting"><a class="viewcode-back" href="../lsi_weights.html#lsi_weights.global_gfldf_weighting">[docs]</a><span class="k">def</span> <span class="nf">global_gfldf_weighting</span><span class="p">(</span> <span class="n">matrix</span> <span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method takes in a numpy 2D array</span>
+<span class="sd">  and calculates the gfldf weight for each row and</span>
+<span class="sd">  returns the weights, g.</span>
+<span class="sd">  </span>
+<span class="sd">  For each word, square the values then sum them.</span>
+<span class="sd">  Return the inverse of that.</span>
+<span class="sd">  </span>
+<span class="sd">  Each row represents a word.</span>
+<span class="sd">  Each column represents a student/document.</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix (numpy 2D array): a numpy 2D array of word frequencies</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    g (numpy array): an array that represents the weight for each row</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span>
+  <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">gf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">gf</span><span class="o">/</span><span class="n">df</span>
+  
+  <span class="k">return</span> <span class="n">g</span>
+</div>
+<div class="viewcode-block" id="global_ldf_weighting"><a class="viewcode-back" href="../lsi_weights.html#lsi_weights.global_ldf_weighting">[docs]</a><span class="k">def</span> <span class="nf">global_ldf_weighting</span><span class="p">(</span> <span class="n">matrix</span> <span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method takes in a numpy 2D array</span>
+<span class="sd">  and calculates the ldf weight for each row and</span>
+<span class="sd">  returns the weights, g.  </span>
+<span class="sd">  </span>
+<span class="sd">  Each row represents a word.</span>
+<span class="sd">  Each column represents a student/document.</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix (numpy 2D array): a numpy 2D array of word frequencies</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    g (numpy array): an array that represents the weight for each row</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span>
+  <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">((</span> <span class="n">x</span> <span class="o">/</span><span class="p">(</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">df</span> <span class="p">)))</span>                       
+  
+  <span class="k">return</span> <span class="n">g</span>
+</div>
+<div class="viewcode-block" id="global_entropy_weighting"><a class="viewcode-back" href="../lsi_weights.html#lsi_weights.global_entropy_weighting">[docs]</a><span class="k">def</span> <span class="nf">global_entropy_weighting</span><span class="p">(</span> <span class="n">matrix</span> <span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method takes in a numpy 2D array</span>
+<span class="sd">  and calculates the entropy weight for each row and</span>
+<span class="sd">  returns the weights, g.</span>
+<span class="sd">  </span>
+<span class="sd">  Each row represents a word.</span>
+<span class="sd">  Each column represents a student/document.</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix (numpy 2D array): a numpy 2D array of word frequencies</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    g (numpy array): an array that represents the weight for each row</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">shape</span>
+  <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>               
+    <span class="n">gf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">/</span><span class="n">gf</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">temp</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">temp</span><span class="p">)):</span>
+      <span class="k">if</span> <span class="n">temp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">a</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span> <span class="n">temp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="p">)</span>
+    
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span> <span class="o">*</span> <span class="n">a</span>        
+    <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span> <span class="n">x</span> <span class="p">)</span>
+    <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">temp</span> <span class="p">)</span>    
+  <span class="k">return</span> <span class="n">g</span>
+</div>
+<div class="viewcode-block" id="best_weighting"><a class="viewcode-back" href="../lsi_weights.html#lsi_weights.best_weighting">[docs]</a><span class="k">def</span> <span class="nf">best_weighting</span><span class="p">(</span> <span class="n">matrix</span> <span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method takes in a numpy 2D array</span>
+<span class="sd">  and calculates the the entropy weight for each row and</span>
+<span class="sd">  the local log weight and applies it to the matrix.</span>
+<span class="sd">  </span>
+<span class="sd">  Each row represents a word.</span>
+<span class="sd">  Each column represents a student/document.</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix (numpy 2D array): a numpy 2D array of word frequencies</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    matrix (numpy 2D array): a numpy 2D array with global entropy and log weight applied</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">g</span> <span class="o">=</span> <span class="n">global_entropy_weighting</span><span class="p">(</span> <span class="n">matrix</span> <span class="p">)</span>
+  <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span>
+  <span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
+  
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+    <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+  
+  <span class="k">return</span> <span class="n">A</span>
+</div>
+<div class="viewcode-block" id="weight_matrix"><a class="viewcode-back" href="../lsi_weights.html#lsi_weights.weight_matrix">[docs]</a><span class="k">def</span> <span class="nf">weight_matrix</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">local_weight</span><span class="p">,</span> <span class="n">global_weight</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method takes in a numpy 2D array and the choice</span>
+<span class="sd">  of which local and global weight to pick.</span>
+<span class="sd">  </span>
+<span class="sd">  Each row represents a word.</span>
+<span class="sd">  Each column represents a student/document.</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix (numpy 2D array): a numpy 2D array of word frequencies</span>
+<span class="sd">    local_weight (str or int): the choice for local weight</span>
+<span class="sd">    global_weight (str or int): the choice for global weight</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    matrix (numpy 2D array): a numpy 2D array with globally and locally weighted</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">A</span> <span class="o">=</span> <span class="n">matrix</span>
+  <span class="n">B</span> <span class="o">=</span> <span class="n">matrix</span>
+    
+  <span class="k">if</span> <span class="n">local_weight</span> <span class="o">==</span> <span class="s">&#39;log&#39;</span> <span class="ow">or</span> <span class="n">local_weight</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">local_log_weighting</span><span class="p">(</span> <span class="n">A</span> <span class="p">)</span>
+  <span class="k">elif</span> <span class="n">local_weight</span> <span class="o">==</span><span class="s">&#39;aug&#39;</span> <span class="ow">or</span> <span class="n">local_weight</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">local_aug_weighting</span><span class="p">(</span> <span class="n">A</span> <span class="p">)</span>
+  <span class="k">elif</span> <span class="n">local_weight</span> <span class="o">==</span><span class="s">&#39;binary&#39;</span> <span class="ow">or</span> <span class="n">local_weight</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">local_binary_weighting</span><span class="p">(</span> <span class="n">A</span> <span class="p">)</span> 
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">A</span>
+
+  <span class="k">if</span> <span class="n">global_weight</span> <span class="o">==</span> <span class="s">&#39;norm&#39;</span> <span class="ow">or</span> <span class="n">global_weight</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">global_normal_weighting</span><span class="p">(</span> <span class="n">B</span> <span class="p">)</span> 
+  <span class="k">elif</span> <span class="n">global_weight</span> <span class="o">==</span> <span class="s">&#39;gfldf&#39;</span> <span class="ow">or</span> <span class="n">global_weight</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">global_gfldf_weighting</span><span class="p">(</span> <span class="n">B</span> <span class="p">)</span> 
+  <span class="k">elif</span> <span class="n">global_weight</span> <span class="o">==</span> <span class="s">&#39;ldf&#39;</span> <span class="ow">or</span> <span class="n">global_weight</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">global_ldf_weighting</span><span class="p">(</span> <span class="n">B</span> <span class="p">)</span>
+  <span class="k">elif</span> <span class="n">global_weight</span> <span class="o">==</span> <span class="s">&#39;entropy&#39;</span> <span class="ow">or</span> <span class="n">global_weight</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">global_entropy_weighting</span><span class="p">(</span> <span class="n">B</span> <span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  
+  <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span><span class="o">.</span><span class="n">T</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Yelnil Gabo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

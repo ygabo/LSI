@@ -1,0 +1,249 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Matrix Weighing Module &mdash; Just In Time Teaching 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Just In Time Teaching 1.0.0 documentation" href="index.html" />
+    <link rel="prev" title="File IO Module" href="lsi_fileIO.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lsi_fileIO.html" title="File IO Module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-lsi_weights">
+<span id="matrix-weighing-module"></span><h1>Matrix Weighing Module<a class="headerlink" href="#module-lsi_weights" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="lsi_weights.best_weighting">
+<tt class="descclassname">lsi_weights.</tt><tt class="descname">best_weighting</tt><big>(</big><em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_weights.html#best_weighting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_weights.best_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes in a numpy 2D array
+and calculates the the entropy weight for each row and
+the local log weight and applies it to the matrix.</p>
+<p>Each row represents a word.
+Each column represents a student/document.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (numpy 2D array): a numpy 2D array of word frequencies</dd>
+<dt>Returns:</dt>
+<dd>matrix (numpy 2D array): a numpy 2D array with global entropy and log weight applied</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_weights.global_entropy_weighting">
+<tt class="descclassname">lsi_weights.</tt><tt class="descname">global_entropy_weighting</tt><big>(</big><em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_weights.html#global_entropy_weighting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_weights.global_entropy_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes in a numpy 2D array
+and calculates the entropy weight for each row and
+returns the weights, g.</p>
+<p>Each row represents a word.
+Each column represents a student/document.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (numpy 2D array): a numpy 2D array of word frequencies</dd>
+<dt>Returns:</dt>
+<dd>g (numpy array): an array that represents the weight for each row</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_weights.global_gfldf_weighting">
+<tt class="descclassname">lsi_weights.</tt><tt class="descname">global_gfldf_weighting</tt><big>(</big><em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_weights.html#global_gfldf_weighting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_weights.global_gfldf_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes in a numpy 2D array
+and calculates the gfldf weight for each row and
+returns the weights, g.</p>
+<p>For each word, square the values then sum them.
+Return the inverse of that.</p>
+<p>Each row represents a word.
+Each column represents a student/document.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (numpy 2D array): a numpy 2D array of word frequencies</dd>
+<dt>Returns:</dt>
+<dd>g (numpy array): an array that represents the weight for each row</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_weights.global_ldf_weighting">
+<tt class="descclassname">lsi_weights.</tt><tt class="descname">global_ldf_weighting</tt><big>(</big><em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_weights.html#global_ldf_weighting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_weights.global_ldf_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes in a numpy 2D array
+and calculates the ldf weight for each row and
+returns the weights, g.</p>
+<p>Each row represents a word.
+Each column represents a student/document.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (numpy 2D array): a numpy 2D array of word frequencies</dd>
+<dt>Returns:</dt>
+<dd>g (numpy array): an array that represents the weight for each row</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_weights.global_normal_weighting">
+<tt class="descclassname">lsi_weights.</tt><tt class="descname">global_normal_weighting</tt><big>(</big><em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_weights.html#global_normal_weighting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_weights.global_normal_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes in a numpy 2D array
+and calculates the normal weight for each row and
+returns the weights, g.</p>
+<p>Each row represents a word.
+Each column represents a student/document.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (numpy 2D array): a numpy 2D array of word frequencies</dd>
+<dt>Returns:</dt>
+<dd>g (numpy array): an array that represents the weight for each row</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_weights.local_aug_weighting">
+<tt class="descclassname">lsi_weights.</tt><tt class="descname">local_aug_weighting</tt><big>(</big><em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_weights.html#local_aug_weighting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_weights.local_aug_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes in a numpy 2D array
+and applies log weighting to the frequency.
+Each row represents a word.
+Each column represents a student.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (numpy 2D array): a numpy 2D array of word frequencies</dd>
+<dt>Returns:</dt>
+<dd>matrix with elements that are log weighted</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_weights.local_binary_weighting">
+<tt class="descclassname">lsi_weights.</tt><tt class="descname">local_binary_weighting</tt><big>(</big><em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_weights.html#local_binary_weighting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_weights.local_binary_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes in a numpy 2D array
+and applies binary weighting to the frequency.
+Word frequency is either 1 or 0.
+Each row represents a word.
+Each column represents a student.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (numpy 2D array): a numpy 2D array of word frequencies</dd>
+<dt>Returns:</dt>
+<dd>matrix with elements that are binary weighted</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_weights.local_log_weighting">
+<tt class="descclassname">lsi_weights.</tt><tt class="descname">local_log_weighting</tt><big>(</big><em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_weights.html#local_log_weighting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_weights.local_log_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes in a numpy 2D array
+and applies log weighting to the frequency.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (numpy 2D array): will be the name of the file. eg &#8216;BigDoc.txt&#8217;</dd>
+<dt>Returns:</dt>
+<dd>matrix with elements log weighted</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_weights.weight_matrix">
+<tt class="descclassname">lsi_weights.</tt><tt class="descname">weight_matrix</tt><big>(</big><em>matrix</em>, <em>local_weight</em>, <em>global_weight</em><big>)</big><a class="reference internal" href="_modules/lsi_weights.html#weight_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_weights.weight_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes in a numpy 2D array and the choice
+of which local and global weight to pick.</p>
+<p>Each row represents a word.
+Each column represents a student/document.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (numpy 2D array): a numpy 2D array of word frequencies
+local_weight (str or int): the choice for local weight
+global_weight (str or int): the choice for global weight</dd>
+<dt>Returns:</dt>
+<dd>matrix (numpy 2D array): a numpy 2D array with globally and locally weighted</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lsi_fileIO.html"
+                        title="previous chapter">File IO Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lsi_weights.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lsi_fileIO.html" title="File IO Module"
+             >previous</a> |</li>
+        <li><a href="index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Yelnil Gabo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

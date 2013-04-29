@@ -1,0 +1,366 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Matrix Manipulation Module &mdash; Just In Time Teaching 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Just In Time Teaching 1.0.0 documentation" href="index.html" />
+    <link rel="next" title="Data Clean Up Module" href="lsi_datacleanup.html" />
+    <link rel="prev" title="Main Module" href="lsi_JIT_main.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lsi_datacleanup.html" title="Data Clean Up Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lsi_JIT_main.html" title="Main Module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-lsi_matrix">
+<span id="matrix-manipulation-module"></span><h1>Matrix Manipulation Module<a class="headerlink" href="#module-lsi_matrix" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="lsi_matrix.count_all_words">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">count_all_words</tt><big>(</big><em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#count_all_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.count_all_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method counts all the words in the matrix.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (numpy 2D array): matrix that contains words</dd>
+<dt>Returns:</dt>
+<dd>counter object that has the word count for all the words</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.count_student_words">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">count_student_words</tt><big>(</big><em>words</em>, <em>blankdictionary</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#count_student_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.count_student_words" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method uses the blank dictionary as a reference.
+Update the values in the blank dictionary with regards to 
+how much they occur in the words matrix.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>words (numpy 2D array): word matrix
+blankdictionary (dict): contains the words we should be looking for</dd>
+<dt>Returns:</dt>
+<dd>dictionary with words from the blankdictionary with frequency updated</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.dict_to_array">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">dict_to_array</tt><big>(</big><em>dictionary</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#dict_to_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.dict_to_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a dictionary into an arrays</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>dictionary (dict): the dictionary to be converted</dd>
+<dt>Returns:</dt>
+<dd>array of words that are sorted by its value</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.get_essay_from_line">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">get_essay_from_line</tt><big>(</big><em>row</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#get_essay_from_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.get_essay_from_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method takes in a row from the answer log and extracts the
+essay submission in the line.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>row (numpy array): array with different information from the anser log</dd>
+<dt>Returns:</dt>
+<dd>answer (str): student answer essay from this line</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.get_name_from_line">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">get_name_from_line</tt><big>(</big><em>row</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#get_name_from_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.get_name_from_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method extracts the student ID from the row.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>row (numpy array): row from the answer log</dd>
+<dt>Returns:</dt>
+<dd>string (str): ID that identifies the student</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.get_number_from_line">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">get_number_from_line</tt><big>(</big><em>row</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#get_number_from_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.get_number_from_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method extracts the number from the row.
+Number is the question number in the quiz.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>row (numpy array): row from the answer log</dd>
+<dt>Returns:</dt>
+<dd>string (str): question number extracted from the row</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.get_test_name_from_line">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">get_test_name_from_line</tt><big>(</big><em>row</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#get_test_name_from_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.get_test_name_from_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method extracts the test name from the row.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>row (numpy array): row from the answer log</dd>
+<dt>Returns:</dt>
+<dd>string (str): name of the quiz/test in this row</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.get_time_stamp_from_line">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">get_time_stamp_from_line</tt><big>(</big><em>row</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#get_time_stamp_from_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.get_time_stamp_from_line" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method extracts the time stamp from the row.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>row (numpy array): row from the answer log</dd>
+<dt>Returns:</dt>
+<dd>string (str): timestamp extracted from the row</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.has_time_stamp">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">has_time_stamp</tt><big>(</big><em>string</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#has_time_stamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.has_time_stamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method checks if the row has a time stamp.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>row (numpy array): row from the answer log</dd>
+<dt>Returns:</dt>
+<dd>answer (bool): returns True if there is a timestamp, False otherwise</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.read_answer_log">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">read_answer_log</tt><big>(</big><em>filename</em>, <em>quizname</em>, <em>numbers</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#read_answer_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.read_answer_log" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method reads data from an answer log.
+Each row is a student submission.
+This takes care of multiple submissions and only considers
+the latest submit.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filename (str): will be the name of the file. eg &#8216;answer_log&#8217;
+quizename (str): name of the quiz to extract. eg &#8216;Lecture_6&#8217;
+numbers (int): number that has the essay question in it, for now this is alway 1.</dd>
+<dt>Returns:</dt>
+<dd>matrix of the essay answers, each row is a</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.recreate_wordle_matrix">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">recreate_wordle_matrix</tt><big>(</big><em>dictionary</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#recreate_wordle_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.recreate_wordle_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method uses the dictionary input to make
+a list of words with a word appearing so many times
+according to its value in the dictionary.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>dictionary (dict): the dictionary to be read</dd>
+<dt>Returns:</dt>
+<dd>array of words</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.recreate_wordle_matrix_from_array">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">recreate_wordle_matrix_from_array</tt><big>(</big><em>array</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#recreate_wordle_matrix_from_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.recreate_wordle_matrix_from_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts an array of word:value into an array of words.
+The same as recreate_wordle_matrix() but here we have an
+array.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>array (numpy array): the dictionary to be converted</dd>
+<dt>Returns:</dt>
+<dd>array of words with each word repeating so many times according to the array input</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.remove_duplicate_submits">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">remove_duplicate_submits</tt><big>(</big><em>matrix</em>, <em>quizname</em>, <em>numbers</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#remove_duplicate_submits"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.remove_duplicate_submits" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is used by read_answer_log().</p>
+<p>This ensures that the last submitted answer
+from a student is the one we extract</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>matrix (numpy 2D array): matrix that contains the answer log data
+quizname (str): quize name we are currently searching for
+numbers (int): currently set at 1</dd>
+<dt>Returns:</dt>
+<dd>matrix without any duplicate submissions</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.set_dict_values_to_zero">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">set_dict_values_to_zero</tt><big>(</big><em>dictionary</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#set_dict_values_to_zero"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.set_dict_values_to_zero" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method sets all the values of a dictionary 
+to 0.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>dictionary (dict): the dictionary to be reset</dd>
+<dt>Returns:</dt>
+<dd>dictionary with words as keys and values set to 0.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.set_minimum">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">set_minimum</tt><big>(</big><em>dictionary</em>, <em>minimum</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#set_minimum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.set_minimum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter out elements that do not make the minimum value.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>dictionary (dict): the dictionary to be checked for values
+minimum (int): minimum value</dd>
+<dt>Returns:</dt>
+<dd>dictionary with all its elements having values greater than minimum</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.set_threshold">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">set_threshold</tt><big>(</big><em>matrix</em>, <em>dictionary</em>, <em>minimum</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#set_threshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.set_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO: currently not using this</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>array (numpy array): the dictionary to be converted</dd>
+<dt>Returns:</dt>
+<dd>array of words with each word repeating so many times according to the array input</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.sort_by_key">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">sort_by_key</tt><big>(</big><em>unsorted</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#sort_by_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.sort_by_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method sorts a dictionary by its key.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>unsorted (dict): the dictionary to be sorted</dd>
+<dt>Returns:</dt>
+<dd>sorted tuple</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.sort_by_value">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">sort_by_value</tt><big>(</big><em>unsorted</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#sort_by_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.sort_by_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method sorts a dictionary by its value.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>unsorted (dict): the dictionary to be sorted</dd>
+<dt>Returns:</dt>
+<dd>sorted tuple</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_matrix.word_matrix">
+<tt class="descclassname">lsi_matrix.</tt><tt class="descname">word_matrix</tt><big>(</big><em>student_comment_matrix</em>, <em>dictionary</em><big>)</big><a class="reference internal" href="_modules/lsi_matrix.html#word_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_matrix.word_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method turns a word matrix into a frequency matrix.
+A matrix of words into numbers that represent frequency.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>student_comment_matrix (numpy 2D array): student essay matrix
+dictionary (dict): blank dictionary of words that are relevant</dd>
+<dt>Returns:</dt>
+<dd>frequency matrix</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lsi_JIT_main.html"
+                        title="previous chapter">Main Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lsi_datacleanup.html"
+                        title="next chapter">Data Clean Up Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lsi_matrix.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lsi_datacleanup.html" title="Data Clean Up Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lsi_JIT_main.html" title="Main Module"
+             >previous</a> |</li>
+        <li><a href="index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Yelnil Gabo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

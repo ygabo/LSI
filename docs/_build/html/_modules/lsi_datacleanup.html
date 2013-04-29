@@ -1,0 +1,375 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lsi_datacleanup &mdash; Just In Time Teaching 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Just In Time Teaching 1.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lsi_datacleanup</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+<span class="kn">from</span> <span class="nn">nltk.stem.wordnet</span> <span class="kn">import</span> <span class="n">WordNetLemmatizer</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+
+<span class="c">#-------------------------</span>
+<span class="c"># DATA CLEAN UP</span>
+<span class="c">#-------------------------</span>
+
+<div class="viewcode-block" id="clean_up_data"><a class="viewcode-back" href="../lsi_datacleanup.html#lsi_datacleanup.clean_up_data">[docs]</a><span class="k">def</span> <span class="nf">clean_up_data</span><span class="p">(</span> <span class="n">matrix</span> <span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Main method called to clean up data/matrix input.</span>
+<span class="sd">  Each row represents one student essay, and each row </span>
+<span class="sd">  is cleaned using the clean_up() method.</span>
+<span class="sd">  </span>
+<span class="sd">  E.g. </span>
+<span class="sd">  [&#39;It was moderately difficult.&#39; &#39;The concepts were generally easy to follow.&#39;] -&gt;</span>
+<span class="sd">  [[&#39;moderately&#39;, &#39;difficult&#39;][&#39;concept&#39;, &#39;generally&#39;, &#39;easy&#39;, &#39;follow&#39;]]</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix (2D list): name of matrix to be cleaned up</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    clean matrix</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">clean</span> <span class="o">=</span> <span class="p">[</span> <span class="n">clean_up</span><span class="p">(</span> <span class="n">row</span><span class="p">[:]</span> <span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matrix</span> <span class="p">]</span>
+  <span class="k">return</span> <span class="n">clean</span>
+</div>
+<div class="viewcode-block" id="clean_up_data_no_prune"><a class="viewcode-back" href="../lsi_datacleanup.html#lsi_datacleanup.clean_up_data_no_prune">[docs]</a><span class="k">def</span> <span class="nf">clean_up_data_no_prune</span><span class="p">(</span> <span class="n">matrix</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Same as clean_up_data(), but this method doesn&#39;t cut off stop words.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      matrix (2D list): name of matrix to be cleaned up</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      clean matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="c"># clean up the matrix</span>
+    <span class="n">clean</span> <span class="o">=</span> <span class="p">[</span> <span class="n">clean_up_no_prune</span><span class="p">(</span> <span class="n">row</span><span class="p">[:]</span> <span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matrix</span> <span class="p">]</span>
+    <span class="k">return</span> <span class="n">clean</span>
+
+<span class="c"># helper</span>
+<span class="c"># wrapper for all the preprocessing functions</span></div>
+<div class="viewcode-block" id="clean_up"><a class="viewcode-back" href="../lsi_datacleanup.html#lsi_datacleanup.clean_up">[docs]</a><span class="k">def</span> <span class="nf">clean_up</span><span class="p">(</span><span class="n">matrix_row</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method is called by clean_up_data().</span>
+<span class="sd">  Runs through an input string essay and cleans it up.</span>
+<span class="sd">  Calls multiple functions to remove stop words, convert plurals, </span>
+<span class="sd">  remove symbols, separate the words, etc.</span>
+<span class="sd">  </span>
+<span class="sd">  E.g. </span>
+<span class="sd">   &#39;The concepts were generally easy to follow.&#39; -&gt;[&#39;concept&#39;, &#39;generally&#39;, &#39;easy&#39;, &#39;follow&#39;]</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix_row (str): string to be cleaned up</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    list of relevant and interesting words from the string</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">fresh</span> <span class="o">=</span> <span class="n">remove_words</span><span class="p">(</span>     <span class="c"># Remove words like an, is, the, etc.</span>
+          <span class="n">plurals</span><span class="p">(</span>          <span class="c"># Convert plural words into singular</span>
+          <span class="n">remove_dot</span><span class="p">(</span>       <span class="c"># Remove periods at the end of words</span>
+          <span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>        <span class="c"># Split the string into words, space as a separator</span>
+          <span class="n">conv_uni</span><span class="p">(</span>         <span class="c"># Convert from unicode to string</span>
+          <span class="n">remove_punc</span><span class="p">(</span>      <span class="c"># Remove punctuations like &quot;,!?.  </span>
+          <span class="n">strip_html</span><span class="p">(</span>       <span class="c"># Convert html special characters into equivalent form, instead of acii (might be redundant with remove_func on top)</span>
+          <span class="n">merge_rows</span><span class="p">(</span>       <span class="c"># Merge rows just in case they&#39;re separated by the csv reader( for now, one row is one feedback of one student)  </span>
+          <span class="n">matrix_row</span> <span class="p">))))</span> <span class="c"># The actual row</span>
+          <span class="o">.</span><span class="n">lower</span><span class="p">()))))</span>       <span class="c"># Convert everything into lower case</span>
+  <span class="k">return</span> <span class="n">fresh</span>
+
+<span class="c"># helper</span>
+<span class="c"># wrapper for all the preprocessing functions</span></div>
+<div class="viewcode-block" id="clean_up_no_prune"><a class="viewcode-back" href="../lsi_datacleanup.html#lsi_datacleanup.clean_up_no_prune">[docs]</a><span class="k">def</span> <span class="nf">clean_up_no_prune</span><span class="p">(</span><span class="n">matrix_row</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Same as clean_up() but this doesn&#39;t call remove_words().</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix_row (str): string to be cleaned up</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    list of relevant and interesting words from the string</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">fresh</span> <span class="o">=</span> <span class="n">remove_dot</span><span class="p">(</span>
+          <span class="n">plurals</span><span class="p">(</span>          <span class="c"># Convert plural words into singular</span>
+          <span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>        <span class="c"># Split the string into words, space as a separator</span>
+          <span class="n">conv_uni</span><span class="p">(</span>         <span class="c"># Convert from unicode to string</span>
+          <span class="n">remove_punc</span><span class="p">(</span>      <span class="c"># Remove punctuations like &quot;,!?.  </span>
+          <span class="n">strip_html</span><span class="p">(</span>       <span class="c"># Convert html special characters into equivalent form, instead of acii (might be redundant with remove_func on top)</span>
+          <span class="n">merge_rows</span><span class="p">(</span>       <span class="c"># Merge rows just in case they&#39;re separated by the csv reader( for now, one row is one feedback of one student)  </span>
+          <span class="n">matrix_row</span> <span class="p">))))</span> <span class="c"># The actual row</span>
+          <span class="o">.</span><span class="n">lower</span><span class="p">())))</span>      <span class="c"># Convert everything into lower case  </span>
+  <span class="k">return</span> <span class="n">fresh</span>
+
+<span class="c"># helper</span>
+<span class="c"># convert unicode to string</span>
+<span class="c"># if string already, return that</span></div>
+<div class="viewcode-block" id="conv_uni"><a class="viewcode-back" href="../lsi_datacleanup.html#lsi_datacleanup.conv_uni">[docs]</a><span class="k">def</span> <span class="nf">conv_uni</span><span class="p">(</span><span class="n">unicode_row</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method converts unicode data into ascii.</span>
+<span class="sd">  We don&#39;t want unicode symbols.</span>
+<span class="sd">  Unicode to ascii table found here http://www.utf8-chartable.de/</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    unicode_row (str): string to be cleaned up</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    string now in ascii</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">unicode_row</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">unicode_row</span>
+  <span class="n">clean</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s">&#39;NFKD&#39;</span><span class="p">,</span> <span class="n">unicode_row</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">,</span><span class="s">&#39;ignore&#39;</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">clean</span>
+
+<span class="c"># helper</span>
+<span class="c"># merge rows in the matrix</span>
+</div>
+<div class="viewcode-block" id="merge_rows"><a class="viewcode-back" href="../lsi_datacleanup.html#lsi_datacleanup.merge_rows">[docs]</a><span class="k">def</span> <span class="nf">merge_rows</span><span class="p">(</span><span class="n">matrix_row</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method combines a list of words into one string.</span>
+<span class="sd">  </span>
+<span class="sd">  E.g. [ &#39;hello&#39;, &#39;hi&#39; ] -&gt; [ &#39;hello hi&#39; ]</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix_row (str): list of words to be combined</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    combined words in one string</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">t</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">matrix_row</span><span class="p">:</span>
+    <span class="n">t</span> <span class="o">+=</span> <span class="n">i</span>
+  <span class="k">return</span> <span class="n">t</span>
+</div>
+<div class="viewcode-block" id="plurals"><a class="viewcode-back" href="../lsi_datacleanup.html#lsi_datacleanup.plurals">[docs]</a><span class="k">def</span> <span class="nf">plurals</span><span class="p">(</span> <span class="n">words</span> <span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method is converts plural words into singular.</span>
+<span class="sd">  It works by calling a third party library by nltk.</span>
+<span class="sd">  </span>
+<span class="sd">  E.g.</span>
+<span class="sd">  &#39;grapes&#39; -&gt; &#39;grape&#39; </span>
+<span class="sd">  &#39;mountain&#39; -&gt; &#39;mountain&#39; # already singular</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    words (str): list of words to be converted</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    list of words in singular form</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">lmtzr</span> <span class="o">=</span> <span class="n">WordNetLemmatizer</span><span class="p">()</span>
+  <span class="n">new_words</span> <span class="o">=</span> <span class="p">[</span> <span class="n">lmtzr</span><span class="o">.</span><span class="n">lemmatize</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">words</span> <span class="p">]</span>
+  <span class="k">return</span> <span class="n">new_words</span>
+</div>
+<div class="viewcode-block" id="remove_words"><a class="viewcode-back" href="../lsi_datacleanup.html#lsi_datacleanup.remove_words">[docs]</a><span class="k">def</span> <span class="nf">remove_words</span><span class="p">(</span> <span class="n">words</span> <span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method filters out specific words from an input of words.</span>
+<span class="sd">  </span>
+<span class="sd">  TODO: not hardcode the stop words in this method</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    words (str): list of words to be cleaned</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    list of words that were not filtered</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;explain&#39;</span><span class="p">,</span> <span class="s">&#39;equation&#39;</span><span class="p">,</span> <span class="s">&#39;screencast&#39;</span><span class="p">,</span> <span class="s">&#39;difficult&#39;</span><span class="p">,</span> <span class="s">&#39;video&#39;</span><span class="p">,</span> <span class="s">&#39;understand&#39;</span><span class="p">,</span>
+           <span class="s">&#39;understanding&#39;</span><span class="p">,</span> <span class="s">&#39;doe&#39;</span><span class="p">,</span> <span class="s">&#39;bit&#39;</span><span class="p">,</span> <span class="s">&#39;lol&#39;</span><span class="p">]</span>
+  <span class="n">dolch220</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;all&#39;</span><span class="p">,</span> <span class="s">&#39;after&#39;</span><span class="p">,</span> <span class="s">&#39;always&#39;</span><span class="p">,</span> <span class="s">&#39;about&#39;</span><span class="p">,</span> <span class="s">&#39;and&#39;</span><span class="p">,</span> <span class="s">&#39;am&#39;</span><span class="p">,</span> <span class="s">&#39;again&#39;</span><span class="p">,</span>
+                <span class="s">&#39;around&#39;</span><span class="p">,</span> <span class="s">&#39;better&#39;</span><span class="p">,</span> <span class="s">&#39;away&#39;</span><span class="p">,</span> <span class="s">&#39;are&#39;</span><span class="p">,</span> <span class="s">&#39;an&#39;</span><span class="p">,</span> <span class="s">&#39;because&#39;</span><span class="p">,</span> <span class="s">&#39;bring&#39;</span><span class="p">,</span>
+                <span class="s">&#39;bat&#39;</span><span class="p">,</span> <span class="s">&#39;any&#39;</span><span class="p">,</span> <span class="s">&#39;been&#39;</span><span class="p">,</span> <span class="s">&#39;carry&#39;</span><span class="p">,</span> <span class="s">&#39;blue&#39;</span><span class="p">,</span> <span class="s">&#39;ate&#39;</span><span class="p">,</span> <span class="s">&#39;as&#39;</span><span class="p">,</span> <span class="s">&#39;before&#39;</span><span class="p">,</span>
+                <span class="s">&#39;can&#39;</span><span class="p">,</span> <span class="s">&#39;be&#39;</span><span class="p">,</span> <span class="s">&#39;ask&#39;</span><span class="p">,</span> <span class="s">&#39;best&#39;</span><span class="p">,</span> <span class="s">&#39;cut&#39;</span><span class="p">,</span> <span class="s">&#39;come&#39;</span><span class="p">,</span> <span class="s">&#39;by&#39;</span><span class="p">,</span> <span class="s">&#39;both&#39;</span><span class="p">,</span> <span class="s">&#39;done&#39;</span><span class="p">,</span>
+                <span class="s">&#39;down&#39;</span><span class="p">,</span> <span class="s">&#39;could&#39;</span><span class="p">,</span> <span class="s">&#39;buy&#39;</span><span class="p">,</span> <span class="s">&#39;draw&#39;</span><span class="p">,</span> <span class="s">&#39;find&#39;</span><span class="p">,</span> <span class="s">&#39;but&#39;</span><span class="p">,</span> <span class="s">&#39;every&#39;</span><span class="p">,</span> <span class="s">&#39;call&#39;</span><span class="p">,</span>
+                <span class="s">&#39;drink&#39;</span><span class="p">,</span> <span class="s">&#39;for&#39;</span><span class="p">,</span> <span class="s">&#39;came&#39;</span><span class="p">,</span> <span class="s">&#39;funny&#39;</span><span class="p">,</span> <span class="s">&#39;did&#39;</span><span class="p">,</span> <span class="s">&#39;from&#39;</span><span class="p">,</span> <span class="s">&#39;does&#39;</span><span class="p">,</span> <span class="s">&#39;fall&#39;</span><span class="p">,</span>
+                <span class="s">&#39;go&#39;</span><span class="p">,</span> <span class="s">&#39;do&#39;</span><span class="p">,</span> <span class="s">&#39;give&#39;</span><span class="p">,</span> <span class="s">&quot;don&#39;t&quot;</span><span class="p">,</span> <span class="s">&#39;far&#39;</span><span class="p">,</span> <span class="s">&#39;dont&#39;</span><span class="p">,</span> <span class="s">&#39;help&#39;</span><span class="p">,</span> <span class="s">&#39;eat&#39;</span><span class="p">,</span> <span class="s">&#39;going&#39;</span><span class="p">,</span>
+                <span class="s">&#39;full&#39;</span><span class="p">,</span> <span class="s">&#39;here&#39;</span><span class="p">,</span> <span class="s">&#39;had&#39;</span><span class="p">,</span> <span class="s">&#39;got&#39;</span><span class="p">,</span> <span class="s">&#39;I&#39;</span><span class="p">,</span> <span class="s">&#39;get&#39;</span><span class="p">,</span> <span class="s">&#39;has&#39;</span><span class="p">,</span> <span class="s">&#39;grow&#39;</span><span class="p">,</span> <span class="s">&#39;in&#39;</span><span class="p">,</span>
+                <span class="s">&#39;good&#39;</span><span class="p">,</span> <span class="s">&#39;her&#39;</span><span class="p">,</span> <span class="s">&#39;found&#39;</span><span class="p">,</span> <span class="s">&#39;hold&#39;</span><span class="p">,</span> <span class="s">&#39;is&#39;</span><span class="p">,</span> <span class="s">&#39;have&#39;</span><span class="p">,</span> <span class="s">&#39;him&#39;</span><span class="p">,</span> <span class="s">&#39;gave&#39;</span><span class="p">,</span>
+                <span class="s">&#39;it&#39;</span><span class="p">,</span> <span class="s">&#39;he&#39;</span><span class="p">,</span> <span class="s">&#39;his&#39;</span><span class="p">,</span> <span class="s">&#39;goes&#39;</span><span class="p">,</span> <span class="s">&#39;hurt&#39;</span><span class="p">,</span> <span class="s">&#39;jump&#39;</span><span class="p">,</span> <span class="s">&#39;into&#39;</span><span class="p">,</span> <span class="s">&#39;how&#39;</span><span class="p">,</span> <span class="s">&#39;if&#39;</span><span class="p">,</span>
+                <span class="s">&#39;like&#39;</span><span class="p">,</span> <span class="s">&#39;just&#39;</span><span class="p">,</span> <span class="s">&#39;its&#39;</span><span class="p">,</span> <span class="s">&#39;keep&#39;</span><span class="p">,</span> <span class="s">&#39;look&#39;</span><span class="p">,</span> <span class="s">&#39;must&#39;</span><span class="p">,</span> <span class="s">&#39;know&#39;</span><span class="p">,</span> <span class="s">&#39;made&#39;</span><span class="p">,</span>
+                <span class="s">&#39;kind&#39;</span><span class="p">,</span> <span class="s">&#39;make&#39;</span><span class="p">,</span> <span class="s">&#39;new&#39;</span><span class="p">,</span> <span class="s">&#39;let&#39;</span><span class="p">,</span> <span class="s">&#39;many&#39;</span><span class="p">,</span> <span class="s">&#39;laugh&#39;</span><span class="p">,</span> <span class="s">&#39;me&#39;</span><span class="p">,</span> <span class="s">&#39;no&#39;</span><span class="p">,</span>
+                <span class="s">&#39;live&#39;</span><span class="p">,</span> <span class="s">&#39;off&#39;</span><span class="p">,</span> <span class="s">&#39;my&#39;</span><span class="p">,</span> <span class="s">&#39;now&#39;</span><span class="p">,</span> <span class="s">&#39;may&#39;</span><span class="p">,</span> <span class="s">&#39;or&#39;</span><span class="p">,</span> <span class="s">&#39;long&#39;</span><span class="p">,</span> <span class="s">&#39;not&#39;</span><span class="p">,</span> <span class="s">&#39;on&#39;</span><span class="p">,</span>
+                <span class="s">&#39;of&#39;</span><span class="p">,</span> <span class="s">&#39;much&#39;</span><span class="p">,</span> <span class="s">&#39;our&#39;</span><span class="p">,</span> <span class="s">&#39;old&#39;</span><span class="p">,</span> <span class="s">&#39;read&#39;</span><span class="p">,</span> <span class="s">&#39;myself&#39;</span><span class="p">,</span> <span class="s">&#39;play&#39;</span><span class="p">,</span> <span class="s">&#39;out&#39;</span><span class="p">,</span>
+                <span class="s">&#39;once&#39;</span><span class="p">,</span> <span class="s">&#39;right&#39;</span><span class="p">,</span> <span class="s">&#39;never&#39;</span><span class="p">,</span> <span class="s">&#39;please&#39;</span><span class="p">,</span> <span class="s">&#39;open&#39;</span><span class="p">,</span> <span class="s">&#39;sing&#39;</span><span class="p">,</span> <span class="s">&#39;only&#39;</span><span class="p">,</span>
+                <span class="s">&#39;run&#39;</span><span class="p">,</span> <span class="s">&#39;pretty&#39;</span><span class="p">,</span> <span class="s">&#39;over&#39;</span><span class="p">,</span> <span class="s">&#39;sit&#39;</span><span class="p">,</span> <span class="s">&#39;own&#39;</span><span class="p">,</span> <span class="s">&#39;said&#39;</span><span class="p">,</span> <span class="s">&#39;ran&#39;</span><span class="p">,</span> <span class="s">&#39;put&#39;</span><span class="p">,</span>
+                <span class="s">&#39;sleep&#39;</span><span class="p">,</span> <span class="s">&#39;pick&#39;</span><span class="p">,</span> <span class="s">&#39;see&#39;</span><span class="p">,</span> <span class="s">&#39;ride&#39;</span><span class="p">,</span> <span class="s">&#39;round&#39;</span><span class="p">,</span> <span class="s">&#39;tell&#39;</span><span class="p">,</span> <span class="s">&#39;the&#39;</span><span class="p">,</span> <span class="s">&#39;saw&#39;</span><span class="p">,</span>
+                <span class="s">&#39;some&#39;</span><span class="p">,</span> <span class="s">&#39;their&#39;</span><span class="p">,</span> <span class="s">&#39;shall&#39;</span><span class="p">,</span> <span class="s">&#39;say&#39;</span><span class="p">,</span> <span class="s">&#39;stop&#39;</span><span class="p">,</span> <span class="s">&#39;these&#39;</span><span class="p">,</span> <span class="s">&#39;show&#39;</span><span class="p">,</span>
+                <span class="s">&#39;to&#39;</span><span class="p">,</span> <span class="s">&#39;she&#39;</span><span class="p">,</span> <span class="s">&#39;take&#39;</span><span class="p">,</span> <span class="s">&#39;those&#39;</span><span class="p">,</span> <span class="s">&#39;so&#39;</span><span class="p">,</span> <span class="s">&#39;thank&#39;</span><span class="p">,</span> <span class="s">&#39;upon&#39;</span><span class="p">,</span> <span class="s">&#39;up&#39;</span><span class="p">,</span>
+                <span class="s">&#39;soon&#39;</span><span class="p">,</span> <span class="s">&#39;them&#39;</span><span class="p">,</span> <span class="s">&#39;us&#39;</span><span class="p">,</span> <span class="s">&#39;start&#39;</span><span class="p">,</span> <span class="s">&#39;we&#39;</span><span class="p">,</span> <span class="s">&#39;that&#39;</span><span class="p">,</span> <span class="s">&#39;then&#39;</span><span class="p">,</span> <span class="s">&#39;use&#39;</span><span class="p">,</span>
+                <span class="s">&#39;where&#39;</span><span class="p">,</span> <span class="s">&#39;there&#39;</span><span class="p">,</span> <span class="s">&#39;think&#39;</span><span class="p">,</span> <span class="s">&#39;very&#39;</span><span class="p">,</span> <span class="s">&#39;today&#39;</span><span class="p">,</span> <span class="s">&#39;they&#39;</span><span class="p">,</span> <span class="s">&#39;walk&#39;</span><span class="p">,</span>
+                <span class="s">&#39;wash&#39;</span><span class="p">,</span> <span class="s">&#39;together&#39;</span><span class="p">,</span> <span class="s">&#39;you&#39;</span><span class="p">,</span> <span class="s">&#39;this&#39;</span><span class="p">,</span> <span class="s">&#39;were&#39;</span><span class="p">,</span> <span class="s">&#39;which&#39;</span><span class="p">,</span> <span class="s">&#39;try&#39;</span><span class="p">,</span>
+                <span class="s">&#39;too&#39;</span><span class="p">,</span> <span class="s">&#39;when&#39;</span><span class="p">,</span> <span class="s">&#39;why&#39;</span><span class="p">,</span> <span class="s">&#39;under&#39;</span><span class="p">,</span> <span class="s">&#39;wa&#39;</span><span class="p">,</span> <span class="s">&#39;wish&#39;</span><span class="p">,</span> <span class="s">&#39;want&#39;</span><span class="p">,</span> <span class="s">&#39;work&#39;</span><span class="p">,</span> <span class="s">&#39;was&#39;</span><span class="p">,</span>
+                <span class="s">&#39;would&#39;</span><span class="p">,</span> <span class="s">&#39;well&#39;</span><span class="p">,</span> <span class="s">&#39;write&#39;</span><span class="p">,</span> <span class="s">&#39;went&#39;</span><span class="p">,</span> <span class="s">&#39;your&#39;</span><span class="p">,</span> <span class="s">&#39;what&#39;</span><span class="p">,</span> <span class="s">&#39;white&#39;</span><span class="p">,</span>
+                <span class="s">&#39;hill&#39;</span><span class="p">,</span> <span class="s">&#39;who&#39;</span><span class="p">,</span> <span class="s">&#39;will&#39;</span><span class="p">,</span> <span class="s">&#39;with&#39;</span><span class="p">,</span> <span class="s">&#39;yes&#39;</span><span class="p">]</span>    
+  <span class="n">words_to_remove</span> <span class="o">=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s">&#39;english&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">dolch220</span> <span class="o">+</span> <span class="n">extra</span>
+  <span class="k">return</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">words_to_remove</span><span class="p">,</span> <span class="n">words</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="remove_dot"><a class="viewcode-back" href="../lsi_datacleanup.html#lsi_datacleanup.remove_dot">[docs]</a><span class="k">def</span> <span class="nf">remove_dot</span><span class="p">(</span> <span class="n">words</span> <span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Removes dots after a word.</span>
+<span class="sd">  </span>
+<span class="sd">  E.g.</span>
+<span class="sd">  &#39;This.&#39; -&gt; &#39;This&#39;</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    words (str): list of words to be filtered</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    list of words after removing &#39;.&#39; suffix</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">new_words</span><span class="o">=</span><span class="p">[]</span>
+  <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">word</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="p">):</span>
+      <span class="n">new_words</span> <span class="o">+=</span> <span class="p">[</span><span class="n">word</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">new_words</span> <span class="o">+=</span> <span class="p">[</span><span class="n">word</span><span class="p">]</span>
+  <span class="k">return</span> <span class="n">new_words</span>
+
+<span class="c"># helper</span>
+<span class="c"># remove punctuations for easy analysis</span></div>
+<div class="viewcode-block" id="remove_punc"><a class="viewcode-back" href="../lsi_datacleanup.html#lsi_datacleanup.remove_punc">[docs]</a><span class="k">def</span> <span class="nf">remove_punc</span><span class="p">(</span><span class="n">sentence</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  Removes all the punctuations from a sentence.</span>
+<span class="sd">  </span>
+<span class="sd">  Note:</span>
+<span class="sd">    pad punctuations with space</span>
+<span class="sd">    just in case so 2 words wont stick together</span>
+<span class="sd">    e.g. avoid this: &quot;by this!Also&quot; --&gt; &quot;by thisAlso&quot;</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    sentence (str): sentence string.</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    string sentence without punctuation</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  
+  <span class="n">sentence</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;([,!?()])&#39;</span><span class="p">,</span> <span class="s">r&#39; \1 &#39;</span><span class="p">,</span> <span class="n">sentence</span><span class="p">)</span>
+  <span class="c"># get rid of punctuations</span>
+  <span class="n">exclude</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span>
+  <span class="c"># don&#39;t remove these two symbols</span>
+  <span class="n">exclude</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;-&#39;</span><span class="p">)</span>
+  <span class="n">exclude</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">)</span>
+  <span class="n">exclude</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+  <span class="c"># remove the punctuations</span>
+  <span class="n">sentence</span> <span class="o">=</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ch</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">sentence</span> <span class="k">if</span> <span class="n">ch</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">sentence</span>
+
+<span class="c"># helper</span></div>
+<div class="viewcode-block" id="strip_html"><a class="viewcode-back" href="../lsi_datacleanup.html#lsi_datacleanup.strip_html">[docs]</a><span class="k">def</span> <span class="nf">strip_html</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;  </span>
+<span class="sd">    This function is by Fredrik Lundh</span>
+<span class="sd">    Convert html special characters into normal ascii characters.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      text (str): sentence string.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      string sentence without punctuation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">fixup</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">text</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&lt;&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s">&quot;&quot;</span> <span class="c"># ignore tags</span>
+        <span class="k">if</span> <span class="n">text</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&amp;#&quot;</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">text</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&amp;#x&quot;</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">unichr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">16</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">unichr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">elif</span> <span class="n">text</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&amp;&quot;</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">htmlentitydefs</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="n">htmlentitydefs</span><span class="o">.</span><span class="n">entitydefs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">text</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">entity</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">entity</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;&amp;#&quot;</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="nb">unichr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">entity</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">unicode</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="s">&quot;iso-8859-1&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">text</span> <span class="c"># leave as is</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&quot;(?s)&lt;[^&gt;]*&gt;|&amp;#?\w+;&quot;</span><span class="p">,</span> <span class="n">fixup</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Yelnil Gabo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

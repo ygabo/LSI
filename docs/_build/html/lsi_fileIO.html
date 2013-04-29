@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>File IO Module &mdash; Just In Time Teaching 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Just In Time Teaching 1.0.0 documentation" href="index.html" />
+    <link rel="next" title="Matrix Weighing Module" href="lsi_weights.html" />
+    <link rel="prev" title="Data Clean Up Module" href="lsi_datacleanup.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lsi_weights.html" title="Matrix Weighing Module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lsi_datacleanup.html" title="Data Clean Up Module"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-lsi_fileIO">
+<span id="file-io-module"></span><h1>File IO Module<a class="headerlink" href="#module-lsi_fileIO" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="lsi_fileIO.load_file">
+<tt class="descclassname">lsi_fileIO.</tt><tt class="descname">load_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lsi_fileIO.html#load_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_fileIO.load_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base function everyone calls to load data from a file.
+Uses pickle to read different kinds of objects from a given file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filename (str): name of file where the data object is to be read</dd>
+<dt>Returns:</dt>
+<dd>data object</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_fileIO.load_matrix_from_file">
+<tt class="descclassname">lsi_fileIO.</tt><tt class="descname">load_matrix_from_file</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="_modules/lsi_fileIO.html#load_matrix_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_fileIO.load_matrix_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>This will read a file and return the data.
+Limitation is, you should know beforehand that
+the file holds a matrix data.</p>
+<dl class="docutils">
+<dt>Args: </dt>
+<dd>name (str): name of file to be read</dd>
+<dt>Returns:</dt>
+<dd>matrix (2D list/array)</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_fileIO.make_sure_path_exists">
+<tt class="descclassname">lsi_fileIO.</tt><tt class="descname">make_sure_path_exists</tt><big>(</big><em>path</em><big>)</big><a class="reference internal" href="_modules/lsi_fileIO.html#make_sure_path_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_fileIO.make_sure_path_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes sure the path given exists.
+It makes it if it doesn&#8217;t.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>path (str): name of the path to be created</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_fileIO.open_dict_file">
+<tt class="descclassname">lsi_fileIO.</tt><tt class="descname">open_dict_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/lsi_fileIO.html#open_dict_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_fileIO.open_dict_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load dictionary from a file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filename (str): name of file where the dict is saved</dd>
+<dt>Returns:</dt>
+<dd>dictionary</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_fileIO.print_to_file">
+<tt class="descclassname">lsi_fileIO.</tt><tt class="descname">print_to_file</tt><big>(</big><em>name</em>, <em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_fileIO.html#print_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_fileIO.print_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the matrix/data into a file.
+This file will be named according to the name
+parameter, and will be stored in the Results folder.
+The folder is located where this code is run.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>name (str): will be the name of the file. eg &#8216;BigDoc.txt&#8217; 
+matrix (2D list): data structure composed of many rows</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_fileIO.save_dict_file">
+<tt class="descclassname">lsi_fileIO.</tt><tt class="descname">save_dict_file</tt><big>(</big><em>filename</em>, <em>dictionary</em><big>)</big><a class="reference internal" href="_modules/lsi_fileIO.html#save_dict_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_fileIO.save_dict_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>This will save a dictionary into a file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filename (str): name of file where the dictionary is saved
+dictionary (dict): name of dict we should save to a file</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_fileIO.save_file">
+<tt class="descclassname">lsi_fileIO.</tt><tt class="descname">save_file</tt><big>(</big><em>filename</em>, <em>data</em><big>)</big><a class="reference internal" href="_modules/lsi_fileIO.html#save_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_fileIO.save_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base function everyone calls to save data to a file.
+Uses pickle to dump different kinds of objects to a given file</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>filename (str): name of file where the data object is saved
+data (object): name of object we should save to a file</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="lsi_fileIO.save_matrix_to_file">
+<tt class="descclassname">lsi_fileIO.</tt><tt class="descname">save_matrix_to_file</tt><big>(</big><em>name</em>, <em>matrix</em><big>)</big><a class="reference internal" href="_modules/lsi_fileIO.html#save_matrix_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#lsi_fileIO.save_matrix_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>This will save a matrix/data into 
+a file.
+The file will not be human-readable.
+Useful to preserve state between program executions.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>name (str): name of file where the matrix is saved
+matrix (2D list): name of matrix we should save to a file</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lsi_datacleanup.html"
+                        title="previous chapter">Data Clean Up Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lsi_weights.html"
+                        title="next chapter">Matrix Weighing Module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/lsi_fileIO.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lsi_weights.html" title="Matrix Weighing Module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lsi_datacleanup.html" title="Data Clean Up Module"
+             >previous</a> |</li>
+        <li><a href="index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Yelnil Gabo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

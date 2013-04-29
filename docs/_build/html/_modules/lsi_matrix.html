@@ -1,0 +1,508 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>lsi_matrix &mdash; Just In Time Teaching 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Just In Time Teaching 1.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for lsi_matrix</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+<span class="kn">from</span> <span class="nn">nltk.stem.wordnet</span> <span class="kn">import</span> <span class="n">WordNetLemmatizer</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span> <span class="nn">lsi_datacleanup</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">lsi_fileIO</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sets</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">errno</span>
+
+<div class="viewcode-block" id="read_answer_log"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.read_answer_log">[docs]</a><span class="k">def</span> <span class="nf">read_answer_log</span><span class="p">(</span> <span class="n">filename</span><span class="p">,</span> <span class="n">quizname</span><span class="p">,</span> <span class="n">numbers</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method reads data from an answer log.</span>
+<span class="sd">    Each row is a student submission.</span>
+<span class="sd">    This takes care of multiple submissions and only considers</span>
+<span class="sd">    the latest submit.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      filename (str): will be the name of the file. eg &#39;answer_log&#39;</span>
+<span class="sd">      quizename (str): name of the quiz to extract. eg &#39;Lecture_6&#39;</span>
+<span class="sd">      numbers (int): number that has the essay question in it, for now this is alway 1.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      matrix of the essay answers, each row is a </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">answer_log</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">&#39;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="n">csv</span><span class="o">.</span><span class="n">QUOTE_NONE</span><span class="p">)</span>
+    <span class="c"># convert to a list</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">answer_log</span><span class="p">)</span>
+    <span class="c"># then convert to a numpy matrix</span>
+    <span class="n">matrix2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">matrix_joined</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">last</span><span class="p">,</span> <span class="o">=</span> <span class="n">matrix2</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">last</span> <span class="o">=</span> <span class="n">last</span> <span class="o">-</span> <span class="mi">1</span>
+    
+    <span class="k">while</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">last</span> <span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">matrix2</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+        <span class="n">matrix_joined</span> <span class="o">=</span> <span class="n">matrix_joined</span> <span class="o">+</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">+</span><span class="mi">1</span>
+        <span class="k">if</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">last</span><span class="p">:</span>
+            <span class="k">break</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">has_time_stamp</span><span class="p">(</span> <span class="n">matrix2</span><span class="p">[</span><span class="n">y</span><span class="p">]</span> <span class="p">):</span>
+            <span class="n">tol</span> <span class="o">=</span> <span class="n">matrix_joined</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">lol</span> <span class="o">=</span> <span class="n">matrix2</span><span class="p">[</span><span class="n">y</span><span class="p">]</span>
+            <span class="n">matrix_joined</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">tol</span> <span class="o">+</span> <span class="n">lol</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">last</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="c"># end while loop</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="k">if</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="n">last</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="c"># end while loop</span>
+
+    <span class="c"># only retrieve the test we want</span>
+    <span class="n">harvest</span> <span class="o">=</span> <span class="p">[</span> <span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matrix_joined</span> <span class="k">if</span> <span class="n">get_test_name_from_line</span><span class="p">(</span> <span class="n">row</span> <span class="p">)</span> <span class="o">==</span> <span class="n">quizname</span><span class="p">]</span>
+    <span class="c"># only get the numbers we specified </span>
+    <span class="n">harvest</span> <span class="o">=</span> <span class="p">[</span> <span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">harvest</span> <span class="k">if</span> <span class="n">get_number_from_line</span><span class="p">(</span> <span class="n">row</span> <span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">]</span>
+    <span class="n">harvest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">harvest</span><span class="p">)</span>
+    <span class="n">harvest</span> <span class="o">=</span> <span class="n">remove_duplicate_submits</span><span class="p">(</span> <span class="n">harvest</span><span class="p">,</span> <span class="n">quizname</span><span class="p">,</span> <span class="n">numbers</span><span class="p">)</span>
+
+    <span class="n">name_list</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="n">get_name_from_line</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">harvest</span> <span class="p">])</span>
+    <span class="n">essay_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="n">get_essay_from_line</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">harvest</span> <span class="p">])</span>
+
+    <span class="n">dual_list</span> <span class="o">=</span> <span class="p">(</span> <span class="nb">zip</span><span class="p">(</span> <span class="n">name_list</span><span class="p">,</span> <span class="n">essay_list</span> <span class="p">)</span> <span class="p">)</span>
+
+    <span class="n">print_to_file</span><span class="p">(</span> <span class="s">&#39;essay_with_names.csv&#39;</span><span class="p">,</span> <span class="n">dual_list</span><span class="p">)</span>
+    <span class="n">print_to_file</span><span class="p">(</span> <span class="s">&#39;essay.csv&#39;</span><span class="p">,</span> <span class="n">essay_list</span><span class="p">)</span>
+
+    <span class="n">harvest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="p">[</span> <span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">essay_list</span> <span class="k">if</span> <span class="n">row</span> <span class="o">!=</span> <span class="s">&#39;&#39;</span> <span class="p">]</span> <span class="p">)</span>
+    <span class="n">print_to_file</span><span class="p">(</span> <span class="s">&#39;noblanks.csv&#39;</span><span class="p">,</span> <span class="n">harvest</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">harvest</span>
+
+<span class="c"># helper function</span></div>
+<div class="viewcode-block" id="remove_duplicate_submits"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.remove_duplicate_submits">[docs]</a><span class="k">def</span> <span class="nf">remove_duplicate_submits</span><span class="p">(</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">quizname</span><span class="p">,</span> <span class="n">numbers</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method is used by read_answer_log().</span>
+<span class="sd">      </span>
+<span class="sd">    This ensures that the last submitted answer</span>
+<span class="sd">    from a student is the one we extract</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      matrix (numpy 2D array): matrix that contains the answer log data</span>
+<span class="sd">      quizname (str): quize name we are currently searching for</span>
+<span class="sd">      numbers (int): currently set at 1</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      matrix without any duplicate submissions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([])</span>
+
+    <span class="c"># add names to the set</span>
+    <span class="c"># the set doesn&#39;t add if the name</span>
+    <span class="c"># is in it already</span>
+    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matrix</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">get_name_from_line</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">latest_stamp</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="c"># for each name in the set</span>
+    <span class="c"># get the latest time stamp</span>
+    <span class="c"># then filter out the earlier ones</span>
+    <span class="k">while</span> <span class="bp">True</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">curname</span> <span class="o">=</span> <span class="n">names</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">submatrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matrix</span> <span class="k">if</span> <span class="n">get_name_from_line</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">==</span> <span class="n">curname</span><span class="p">])</span>
+        <span class="c"># get latest time stamp</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">submatrix</span><span class="p">:</span>
+            <span class="n">stamp</span> <span class="o">=</span> <span class="n">get_time_stamp_from_line</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">latest_stamp</span> <span class="o">&lt;</span> <span class="n">stamp</span><span class="p">:</span>
+                <span class="n">latest_stamp</span> <span class="o">=</span> <span class="n">stamp</span>
+
+        <span class="c"># remove duplicates</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="p">[</span> <span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matrix</span> <span class="k">if</span> <span class="p">(</span><span class="n">curname</span> <span class="o">!=</span> <span class="n">get_name_from_line</span><span class="p">(</span><span class="n">row</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">get_time_stamp_from_line</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">==</span> <span class="n">latest_stamp</span><span class="p">)</span> <span class="p">]</span>       
+        <span class="n">latest_stamp</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="c"># abi, TODO</span>
+    <span class="c"># simple fix for now</span>
+    <span class="c"># remove the guy with this ID</span>
+    <span class="n">matrix</span> <span class="o">=</span>  <span class="p">[</span> <span class="n">row</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matrix</span> <span class="k">if</span> <span class="n">get_name_from_line</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&#39;ITP1MGS34Q06&#39;</span> <span class="p">]</span>
+    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">matrix</span>
+
+    
+<span class="c">#-------------------------</span>
+<span class="c"># COUNTING</span>
+<span class="c">#-------------------------#</span>
+</div>
+<div class="viewcode-block" id="count_all_words"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.count_all_words">[docs]</a><span class="k">def</span> <span class="nf">count_all_words</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  This method counts all the words in the matrix.</span>
+<span class="sd">  </span>
+<span class="sd">  Args:</span>
+<span class="sd">    matrix (numpy 2D array): matrix that contains words</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    counter object that has the word count for all the words</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">c1</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+  <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matrix</span><span class="p">:</span>
+    <span class="n">c1</span> <span class="o">+=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">c1</span>
+</div>
+<div class="viewcode-block" id="count_student_words"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.count_student_words">[docs]</a><span class="k">def</span> <span class="nf">count_student_words</span><span class="p">(</span> <span class="n">words</span><span class="p">,</span> <span class="n">blankdictionary</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method uses the blank dictionary as a reference.</span>
+<span class="sd">    Update the values in the blank dictionary with regards to </span>
+<span class="sd">    how much they occur in the words matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      words (numpy 2D array): word matrix</span>
+<span class="sd">      blankdictionary (dict): contains the words we should be looking for</span>
+<span class="sd">    Returns:</span>
+<span class="sd">      dictionary with words from the blankdictionary with frequency updated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">blankdictionary</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">x</span>
+</div>
+<div class="viewcode-block" id="dict_to_array"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.dict_to_array">[docs]</a><span class="k">def</span> <span class="nf">dict_to_array</span><span class="p">(</span> <span class="n">dictionary</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a dictionary into an arrays</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      dictionary (dict): the dictionary to be converted</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     array of words that are sorted by its value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">sort_by_key</span><span class="p">(</span> <span class="n">dictionary</span> <span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span> <span class="n">x</span> <span class="p">)</span><span class="c">#, dtype = [(&#39;y&#39;, &#39;|S11&#39;), (&#39;Value&#39;, float)] )</span>
+    <span class="k">return</span> <span class="n">x</span>
+</div>
+<div class="viewcode-block" id="recreate_wordle_matrix"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.recreate_wordle_matrix">[docs]</a><span class="k">def</span> <span class="nf">recreate_wordle_matrix</span><span class="p">(</span> <span class="n">dictionary</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method uses the dictionary input to make</span>
+<span class="sd">    a list of words with a word appearing so many times</span>
+<span class="sd">    according to its value in the dictionary.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      dictionary (dict): the dictionary to be read</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     array of words</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">dictionary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">word</span><span class="p">)))):</span>
+            <span class="n">new_list</span> <span class="o">+=</span> <span class="p">[</span><span class="n">word</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">new_list</span>
+</div>
+<div class="viewcode-block" id="recreate_wordle_matrix_from_array"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.recreate_wordle_matrix_from_array">[docs]</a><span class="k">def</span> <span class="nf">recreate_wordle_matrix_from_array</span><span class="p">(</span> <span class="n">array</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts an array of word:value into an array of words.</span>
+<span class="sd">    The same as recreate_wordle_matrix() but here we have an</span>
+<span class="sd">    array.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      array (numpy array): the dictionary to be converted</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     array of words with each word repeating so many times according to the array input</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">c3</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">c3</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">word</span><span class="p">)):</span>
+            <span class="n">new_list</span> <span class="o">+=</span> <span class="p">[</span><span class="n">word</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">new_list</span>
+</div>
+<div class="viewcode-block" id="set_dict_values_to_zero"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.set_dict_values_to_zero">[docs]</a><span class="k">def</span> <span class="nf">set_dict_values_to_zero</span><span class="p">(</span> <span class="n">dictionary</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method sets all the values of a dictionary </span>
+<span class="sd">    to 0.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      dictionary (dict): the dictionary to be reset</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     dictionary with words as keys and values set to 0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">x</span>
+</div>
+<div class="viewcode-block" id="set_minimum"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.set_minimum">[docs]</a><span class="k">def</span> <span class="nf">set_minimum</span><span class="p">(</span><span class="n">dictionary</span><span class="p">,</span> <span class="n">minimum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Filter out elements that do not make the minimum value.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      dictionary (dict): the dictionary to be checked for values</span>
+<span class="sd">      minimum (int): minimum value</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     dictionary with all its elements having values greater than minimum</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">minimum</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">x</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">x</span>
+</div>
+<div class="viewcode-block" id="set_threshold"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.set_threshold">[docs]</a><span class="k">def</span> <span class="nf">set_threshold</span><span class="p">(</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">,</span> <span class="n">minimum</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    TODO: currently not using this</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      array (numpy array): the dictionary to be converted</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     array of words with each word repeating so many times according to the array input</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span> <span class="n">set_minimum</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">,</span> <span class="n">minimum</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">matrix</span> <span class="p">]</span>
+</div>
+<div class="viewcode-block" id="sort_by_key"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.sort_by_key">[docs]</a><span class="k">def</span> <span class="nf">sort_by_key</span><span class="p">(</span><span class="n">unsorted</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method sorts a dictionary by its key.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      unsorted (dict): the dictionary to be sorted</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     sorted tuple</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sorted_tuple</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">unsorted</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sorted_tuple</span>
+</div>
+<div class="viewcode-block" id="sort_by_value"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.sort_by_value">[docs]</a><span class="k">def</span> <span class="nf">sort_by_value</span><span class="p">(</span><span class="n">unsorted</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method sorts a dictionary by its value.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      unsorted (dict): the dictionary to be sorted</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     sorted tuple</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sorted_tuple</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">unsorted</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">itemgetter</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sorted_tuple</span>
+
+<span class="c"># constuct the word matrix</span>
+<span class="c"># only accepts a 2D student comment matrix</span></div>
+<div class="viewcode-block" id="word_matrix"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.word_matrix">[docs]</a><span class="k">def</span> <span class="nf">word_matrix</span><span class="p">(</span> <span class="n">student_comment_matrix</span><span class="p">,</span> <span class="n">dictionary</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method turns a word matrix into a frequency matrix.</span>
+<span class="sd">    A matrix of words into numbers that represent frequency.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      student_comment_matrix (numpy 2D array): student essay matrix</span>
+<span class="sd">      dictionary (dict): blank dictionary of words that are relevant</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     frequency matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">student_comment</span> <span class="ow">in</span> <span class="n">student_comment_matrix</span><span class="p">:</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">count_student_words</span><span class="p">(</span> <span class="n">student_comment</span><span class="p">,</span> <span class="n">dictionary</span> <span class="p">)</span>
+        <span class="c"># converts the dictionary count into an array, </span>
+        <span class="c"># sorts the words as well</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">dict_to_array</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">a</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">+</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+</div>
+<div class="viewcode-block" id="get_essay_from_line"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.get_essay_from_line">[docs]</a><span class="k">def</span> <span class="nf">get_essay_from_line</span><span class="p">(</span> <span class="n">row</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method takes in a row from the answer log and extracts the</span>
+<span class="sd">    essay submission in the line.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      row (numpy array): array with different information from the anser log</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     answer (str): student answer essay from this line</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># first index of</span>
+    <span class="c"># essay answer is 2</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">last</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">row</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">last</span>  <span class="o">=</span> <span class="n">last</span> <span class="o">-</span> <span class="mi">1</span> 
+
+    <span class="n">answer</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="s">&#39;[&#39;</span><span class="p">)</span>
+    
+    <span class="n">index</span>  <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="n">index</span> <span class="o">&lt;=</span> <span class="n">last</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="s">&#39; &#39;</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="n">answer</span> <span class="o">+</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="n">index</span><span class="p">]]</span>
+        <span class="n">index</span>  <span class="o">=</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span>     
+    <span class="n">answer</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">answer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">answer</span>
+</div>
+<div class="viewcode-block" id="get_name_from_line"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.get_name_from_line">[docs]</a><span class="k">def</span> <span class="nf">get_name_from_line</span><span class="p">(</span> <span class="n">row</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method extracts the student ID from the row.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      row (numpy array): row from the answer log</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     string (str): ID that identifies the student</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&#39;]&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;|&#39;</span> <span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="get_test_name_from_line"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.get_test_name_from_line">[docs]</a><span class="k">def</span> <span class="nf">get_test_name_from_line</span><span class="p">(</span> <span class="n">row</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method extracts the test name from the row.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      row (numpy array): row from the answer log</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     string (str): name of the quiz/test in this row</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&#39;]&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;|&#39;</span> <span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="get_time_stamp_from_line"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.get_time_stamp_from_line">[docs]</a><span class="k">def</span> <span class="nf">get_time_stamp_from_line</span><span class="p">(</span> <span class="n">row</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method extracts the time stamp from the row.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      row (numpy array): row from the answer log</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     string (str): timestamp extracted from the row</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;]&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="get_number_from_line"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.get_number_from_line">[docs]</a><span class="k">def</span> <span class="nf">get_number_from_line</span><span class="p">(</span> <span class="n">row</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method extracts the number from the row.</span>
+<span class="sd">    Number is the question number in the quiz.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      row (numpy array): row from the answer log</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     string (str): question number extracted from the row</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&#39;]&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span> <span class="s">&#39;|&#39;</span> <span class="p">)[</span><span class="mi">3</span><span class="p">])</span>
+
+<span class="c"># Check if this string is a time stamp</span>
+<span class="c"># Stamps look like this :</span>
+<span class="c"># [Tue Dec 18 15:03:25 2012] |bb_demo_17032|Lecture_1|2|010101</span>
+<span class="c"># This just checks if the string has the correct number of elements</span></div>
+<div class="viewcode-block" id="has_time_stamp"><a class="viewcode-back" href="../lsi_matrix.html#lsi_matrix.has_time_stamp">[docs]</a><span class="k">def</span> <span class="nf">has_time_stamp</span><span class="p">(</span> <span class="n">string</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method checks if the row has a time stamp.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">      row (numpy array): row from the answer log</span>
+<span class="sd">    Returns:</span>
+<span class="sd">     answer (bool): returns True if there is a timestamp, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># check if empty first</span>
+    <span class="k">if</span> <span class="n">string</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="n">string</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="n">string</span> <span class="o">==</span> <span class="p">[]:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+    
+    <span class="c"># only consider the first element</span>
+    <span class="c"># since that is where the time stamp is</span>
+    <span class="n">local</span> <span class="o">=</span> <span class="n">string</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">local</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">local</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+    
+    <span class="n">outer</span><span class="p">,</span> <span class="o">=</span> <span class="n">local</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">outer</span> <span class="o">!=</span> <span class="mi">6</span><span class="p">:</span> 
+        <span class="k">return</span> <span class="bp">False</span>
+    
+    <span class="n">inner</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">local</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;|&#39;</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">inner</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="c"># outer has 6 elements</span>
+    <span class="c"># inner has 4 elements</span>
+    <span class="k">return</span> <span class="bp">True</span>
+    </div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../index.html">Just In Time Teaching 1.0.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Yelnil Gabo.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>
